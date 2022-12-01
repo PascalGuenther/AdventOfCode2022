@@ -42,9 +42,9 @@ jobs:
           cc: gcc-12
           cxx: g++-12
 
-        - compiler: clang
-          cc: clang-13
-          cxx: clang++-13
+        # - compiler: clang
+        #   cc: clang-13
+        #   cxx: clang++-13
 
         - compiler: msvc
           cc: cl

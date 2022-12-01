@@ -14,7 +14,6 @@ function(default_compile_options target)
             -Wextra
             -Wconversion
             -Werror
-            -fconstexpr-ops-limit=3355443200
         )
     endif()
 endfunction()

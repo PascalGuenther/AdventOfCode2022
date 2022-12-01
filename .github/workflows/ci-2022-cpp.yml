@@ -1,0 +1,86 @@
+name: CI 2022 C++
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, windows-2022]
+        compiler: [gnu, clang, msvc]
+        arch: [x86, x64]
+
+        exclude:
+        - os: ubuntu-20.04
+          compiler: msvc
+
+        - os: ubuntu-20.04
+          arch: x86
+
+        - os: windows-2022
+          compiler: gnu
+        
+        - os: windows-2022
+          compiler: clang
+
+        include:
+        - os: ubuntu-20.04
+          nproc: "-j$(nproc)"
+          mkdir_force: -p
+        
+        - os: windows-2022
+          mkdir_force: -Force
+          nproc: -j4
+          generator: -G \"Visual Studio 17 2022\"
+
+        - compiler: gnu
+          cc: gcc-10
+          cxx: g++-10
+
+        - compiler: clang
+          cc: clang-12
+          cxx: clang++-12
+
+        - compiler: msvc
+          cc: cl
+          cxx: cl
+        
+        - arch: x86
+          archWin: -A Win32
+          archLin: -m32
+
+        - arch: x64
+          archWin: -A x64
+
+    env:
+        # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+        BUILD_TYPE: Release
+        CC: ${{ matrix.cc }}
+        CXX: ${{ matrix.cxx }}
+
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure CMake for Linux
+      if: runner.os == 'Linux'
+      run: cmake -S ${{github.workspace}}/cpp -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+  
+    - name: Configure CMake for Windows
+      if: runner.os == 'Windows'
+      run: cmake -S ${{github.workspace}}/cpp -B ${{github.workspace}}/build -G "Visual Studio 17 2022" ${{ matrix.archWin }}
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} ${{ matrix.nproc }}
+
+    - name: Test
+      working-directory: ${{github.workspace}}/build
+      # Execute tests defined by the CMake configuration.  
+      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+      run: ctest ${{ matrix.nproc }} -C ${{env.BUILD_TYPE}}

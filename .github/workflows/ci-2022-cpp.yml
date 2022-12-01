@@ -11,15 +11,15 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-20.04, windows-2022]
+        os: [ubuntu-22.04, windows-2022]
         compiler: [gnu, clang, msvc]
         arch: [x86, x64]
 
         exclude:
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           compiler: msvc
 
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           arch: x86
 
         - os: windows-2022
@@ -29,7 +29,7 @@ jobs:
           compiler: clang
 
         include:
-        - os: ubuntu-20.04
+        - os: ubuntu-22.04
           nproc: "-j$(nproc)"
           mkdir_force: -p
         
@@ -39,12 +39,12 @@ jobs:
           generator: -G \"Visual Studio 17 2022\"
 
         - compiler: gnu
-          cc: gcc-10
-          cxx: g++-10
+          cc: gcc-12
+          cxx: g++-12
 
         - compiler: clang
-          cc: clang-12
-          cxx: clang++-12
+          cc: clang-13
+          cxx: clang++-13
 
         - compiler: msvc
           cc: cl

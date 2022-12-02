@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(AdventOfCode VERSION 2022.12.0)
+project(AdventOfCode VERSION 2022.12.2)
 
 function(default_compile_options target)
     if(MSVC)
@@ -13,6 +13,7 @@ function(default_compile_options target)
             -Wpedantic
             -Wextra
             -Wconversion
+            -Wnarrowing
             -Werror
         )
     endif()

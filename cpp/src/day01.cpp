@@ -37,12 +37,14 @@ namespace {
         return elfCalories;
     }
 
-    AOC_Y2022_CONSTEXPR auto part_1(const auto &parsedInput) {
+    AOC_Y2022_CONSTEXPR auto part_1(const auto &parsedInput)
+    {
         const auto elfCalories = get_elf_list(parsedInput);
         return *std::max_element(elfCalories.begin(), elfCalories.end());
     }
 
-    constexpr auto part_2(const auto &parsedInput) {
+    AOC_Y2022_CONSTEXPR auto part_2(const auto &parsedInput)
+    {
         auto elfCalories = get_elf_list(parsedInput);
         constexpr auto numberOfTopElves = 3u;
         std::ranges::partial_sort(elfCalories, elfCalories.begin() + numberOfTopElves, std::greater());

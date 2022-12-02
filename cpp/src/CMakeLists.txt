@@ -8,7 +8,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(CompileTimeRegularExpressions)
 
-set(AOC_Y2022_DAYS_LIST "01")
+set(AOC_Y2022_DAYS_LIST "01;02")
 set(AOC_Y2022_DAYS_LIST ${AOC_Y2022_DAYS_LIST} PARENT_SCOPE)
 set(AOC_Y2022_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 

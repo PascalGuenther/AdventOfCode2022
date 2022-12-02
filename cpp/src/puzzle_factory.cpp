@@ -3,7 +3,8 @@
 #include "utils.hpp"
 
 #define AOC_Y2022_SUPPORTED_PUZZLES_LIST(xMacro)                   \
-    xMacro(01)
+    xMacro(01)                                                     \
+    xMacro(02)                                                     \
 
 namespace AOC::Y2022
 {

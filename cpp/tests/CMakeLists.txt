@@ -33,6 +33,7 @@ function(AOC_Y2022_CreateTest TEST_DAY)
 
     target_link_libraries(${AOC_Y2022_TEST_TARGET_NAME}
         gtest_main
+        ctre
     )
 
     gtest_discover_tests(${AOC_Y2022_TEST_TARGET_NAME})

@@ -1,6 +1,7 @@
 #include "ipuzzle.hpp"
 #include "puzzle_common.hpp"
 #include "utils.hpp"
+#include "ctre.hpp"
 
 #include <algorithm>
 #include <memory>
@@ -48,23 +49,13 @@ namespace {
     {
         std::vector<Turn> strategy;
         for_each_line(input_string_view, [&strategy](const std::string_view &line) -> bool {
-            enum InputPos : std::size_t {
-                they = 0u,
-                space = 1u,
-                us = 2u,
-            };
-            if (line.empty() || (line.size() <= InputPos::us) || line[InputPos::space] != ' ')
+            if (auto [whole, theirs, ours] = ctre::match<"(^[A-C]) ([X-Z])$">(line); whole)
             {
-                return false;
+                strategy.emplace_back(convert_input_shape(theirs.to_view()[0], 'A'), convert_input_shape(ours.to_view()[0], 'X'));
+                return true;
             }
-            const auto theirs = convert_input_shape(line[InputPos::they], 'A');
-            const auto ours = convert_input_shape(line[InputPos::us], 'X');
-            if ((theirs == Shape::max) || (ours == Shape::max))
-            {
-                return false;
-            }
-            strategy.emplace_back(theirs, ours);
-            return true;
+            strategy.clear();
+            return false;
         });
         return strategy;
     }

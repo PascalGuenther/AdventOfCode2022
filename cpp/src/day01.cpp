@@ -18,7 +18,7 @@ namespace {
 
     AOC_Y2022_CONSTEXPR auto parse_input(std::string_view input_string_view)
     {
-        return ParseToVectorOfNums<Calories, '\n'>(input_string_view);
+        return parse_to_vector_of_numbers<Calories, '\n'>(input_string_view);
     }
 
     AOC_Y2022_CONSTEXPR auto get_elf_list(const auto &parsedInput)

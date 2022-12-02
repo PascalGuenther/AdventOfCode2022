@@ -13,13 +13,18 @@
 namespace AOC::Y2022
 {
 
-constexpr bool ParseLines(std::string_view input, auto &&fnLineCb, const bool exitOnEmptyLine = true)
+enum class ParseLine
+{
+    break_if_empty,
+    continue_if_empty,
+};
+constexpr bool for_each_line(std::string_view input, auto &&fnLineCb, ParseLine mode = ParseLine::break_if_empty)
 {
     while (!input.empty())
     {
         const auto rfOrLn = input.find_first_of("\r\n");
         const auto line = (rfOrLn == input.npos) ? input.substr(0) : input.substr(0, rfOrLn);
-        if (exitOnEmptyLine && line.empty())
+        if ((mode == ParseLine::break_if_empty) && line.empty())
         {
             return false;
         }
@@ -37,7 +42,7 @@ constexpr bool ParseLines(std::string_view input, auto &&fnLineCb, const bool ex
     return true;
 }
 
-template <typename T> constexpr T ParseNumber(std::string_view str, const std::uint8_t base = 10u)
+template <typename T> constexpr T parse_number(std::string_view str, const std::uint8_t base = 10u)
 {
     T ret{0};
     [[maybe_unused]] bool bNegative = false;
@@ -98,20 +103,20 @@ template <typename T> constexpr T ParseNumber(std::string_view str, const std::u
     }
     return ret;
 }
-static_assert(5 == ParseNumber<int>("5"));
-static_assert(50 == ParseNumber<int>(" 50"));
-static_assert(450 == ParseNumber<int>(" +   450fdsgs"));
-static_assert(-21 == ParseNumber<int>("- 21"));
-static_assert(-14 == ParseNumber<int>("- 1110", 2));
-static_assert(0xFFFF == ParseNumber<unsigned int>(" +  FFFF", 16));
-static_assert(0xDEADBEEFul == ParseNumber<unsigned int>(" +  DeADbEEF", 16));
+static_assert(5 == parse_number<int>("5"));
+static_assert(50 == parse_number<int>(" 50"));
+static_assert(450 == parse_number<int>(" +   450fdsgs"));
+static_assert(-21 == parse_number<int>("- 21"));
+static_assert(-14 == parse_number<int>("- 1110", 2));
+static_assert(0xFFFF == parse_number<unsigned int>(" +  FFFF", 16));
+static_assert(0xDEADBEEFul == parse_number<unsigned int>(" +  DeADbEEF", 16));
 
-template <typename T, char DELIMITER> AOC_Y2022_CONSTEXPR std::vector<T> ParseToVectorOfNums(std::string_view str)
+template <typename T, char DELIMITER> AOC_Y2022_CONSTEXPR std::vector<T> parse_to_vector_of_numbers(std::string_view str)
 {
     std::vector<T> ret{};
     for (std::size_t start = 0; str.size(); str.remove_prefix(start + 1))
     {
-        ret.push_back(ParseNumber<T>(str));
+        ret.push_back(parse_number<T>(str));
         start = str.find_first_of(DELIMITER);
         if (start == str.npos)
         {
@@ -121,7 +126,7 @@ template <typename T, char DELIMITER> AOC_Y2022_CONSTEXPR std::vector<T> ParseTo
     return ret;
 }
 
-template <typename T, std::size_t N> consteval auto Vector2Array(const std::vector<T> &vec)
+template <typename T, std::size_t N> consteval auto vector_to_array(const std::vector<T> &vec)
 {
     std::array<T, N> ret{};
     std::copy(vec.begin(), vec.end(), ret.begin());
@@ -198,8 +203,8 @@ template <typename T> class Vector2D
     std::vector<T> m_vec;
 };
 
-[[nodiscard]] AOC_Y2022_CONSTEXPR inline Vector2D<std::uint8_t> ParseToVector2D(std::string_view input,
-                                                                                const bool requireSquare = false)
+[[nodiscard]] AOC_Y2022_CONSTEXPR inline Vector2D<std::uint8_t> parse_to_vector_2d(std::string_view input,
+                                                                                   const bool requireSquare = false)
 {
     std::vector<std::uint8_t> parsed;
     parsed.reserve(input.size());
@@ -227,7 +232,7 @@ template <typename T> class Vector2D
         return ((width > 0) && ((parsed.size() % width) == 0) &&
                 ((!requireSquare) || (parsed.size() != (width * width))));
     };
-    if (!ParseLines(input, forEachLine) || !validateShape())
+    if (!for_each_line(input, forEachLine) || !validateShape())
     {
         return {0, std::vector<std::uint8_t>()};
     }

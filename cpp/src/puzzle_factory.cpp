@@ -20,7 +20,7 @@ std::unique_ptr<IPuzzle> PuzzleFactory::CreatePuzzle(const std::uint8_t game, co
         return nullptr;
 
 #define AOC_Y2022_PUZZLE_CASE(day)                                                                                     \
-    case ParseNumber<std::uint8_t>(#day): /* avoid that leading zeroes are interpreted as octal */                     \
+    case parse_number<std::uint8_t>(#day): /* avoid that leading zeroes are interpreted as octal */                    \
         return std::make_unique<PuzzleDay##day>(input);
 
         AOC_Y2022_SUPPORTED_PUZZLES_LIST(AOC_Y2022_PUZZLE_CASE)

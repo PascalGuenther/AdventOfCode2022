@@ -14,108 +14,74 @@ namespace AOC::Y2022
 {
 
 namespace {
-    enum class Shape : char {
-        invalid = '\0',
-        rock = 'A',
-        paper = 'B',
-        scissors = 'C',
-    };
-
-    enum class Winner {
-        draw,
-        first,
-        second,
-    };
-
-    using Turn = std::pair<Shape, char>;
-
-
-    AOC_Y2022_CONSTEXPR auto convert_input_shape(char input, bool second)
+    enum class Shape : std::uint8_t
     {
-        if (second)
+        rock = 0u , paper = 1u, scissors = 2u, max = 3u,
+    };
+
+    enum class Winner : std::uint8_t {
+        first = 0u, draw = 1u, second = 2u, max = 3u,
+    };
+
+    static constexpr std::array winTable = {
+        Shape::paper,
+        Shape::scissors,
+        Shape::rock,
+        Shape::max,
+    };
+
+    using Turn = std::pair<Shape, Shape>;
+
+    AOC_Y2022_CONSTEXPR auto convert_input_shape(char input, char rockCharacter)
+    {
+
+        input -= rockCharacter;
+        Shape ret = static_cast<Shape>(input);
+        if (ret >= Shape::max)
         {
-            input -= 'X' - 'A';
+            return Shape::max;
         }
-        switch(input)
-        {
-            case 'A':
-            case 'B':
-            case 'C':
-                return static_cast<Shape>(input);
-            default:
-                return Shape::invalid;
-        }
+        return ret;
     }
 
     AOC_Y2022_CONSTEXPR auto parse_input(std::string_view input_string_view)
     {
         std::vector<Turn> strategy;
-        auto forEachLine = [&strategy](const std::string_view &line) -> bool {
+        for_each_line(input_string_view, [&strategy](const std::string_view &line) -> bool {
             enum InputPos : std::size_t {
                 they = 0u,
+                space = 1u,
                 us = 2u,
             };
-            if (line.empty() || (line.size() <= InputPos::us))
+            if (line.empty() || (line.size() <= InputPos::us) || line[InputPos::space] != ' ')
             {
                 return false;
             }
-            const auto theirs = convert_input_shape(line[InputPos::they], false);
-            if ((theirs == Shape::invalid) || (convert_input_shape(line[InputPos::us], true) == Shape::invalid))
+            const auto theirs = convert_input_shape(line[InputPos::they], 'A');
+            const auto ours = convert_input_shape(line[InputPos::us], 'X');
+            if ((theirs == Shape::max) || (ours == Shape::max))
             {
                 return false;
             }
-            strategy.emplace_back(theirs, line[InputPos::us]);
+            strategy.emplace_back(theirs, ours);
             return true;
-        };
-        ParseLines(input_string_view, forEachLine, true);
+        });
         return strategy;
     }
 
     AOC_Y2022_CONSTEXPR auto determine_winner(const Shape first, const Shape second)
     {
-        
-        switch (first)
+        if ((first == second) || (first >= Shape::max) || (second >= Shape::max))
         {
-            case Shape::rock:
-            {
-                switch (second)
-                {
-                    case Shape::rock: return Winner::draw;
-                    case Shape::paper: return Winner::second;
-                    case Shape::scissors: return Winner::first;
-                    default: return Winner::draw;
-                }
-                break;
-            }
-            case Shape::paper:
-            {
-                switch (second)
-                {
-                    case Shape::rock: return Winner::first;
-                    case Shape::paper: return Winner::draw;
-                    case Shape::scissors: return Winner::second;
-                    default: return Winner::draw;
-                }
-                break;
-            }
-            case Shape::scissors:
-            {
-                switch (second)
-                {
-                    case Shape::rock: return Winner::second;
-                    case Shape::paper: return Winner::first;
-                    case Shape::scissors: return Winner::draw;
-                    default: return Winner::draw;
-                }
-                break;
-            }
-            default: return Winner::draw;
+            return Winner::draw;
         }
+        return (second == winTable[static_cast<size_t>(first)])
+            ? Winner::second
+            : Winner::first;
     }
 
-    AOC_Y2022_CONSTEXPR auto calculate_score(Winner winner, Shape shape)
+    AOC_Y2022_CONSTEXPR auto update_score(auto &score, Winner winner, Shape shape)
     {
-        std::uint32_t score = 0u;
         switch (winner)
         {
             case Winner::first:
@@ -127,55 +93,24 @@ namespace {
                 score += 3u;
                 break;
             default:
-                return 0u;
+                return false;
         }
-        switch (shape)
-        {
-            case Shape::rock:
-                return score + 1u;
-            case Shape::paper:
-                return score + 2u;
-            case Shape::scissors:
-                return score + 3u;
-            default:
-                return 0u;
-        }
+        score += static_cast<std::uint8_t>(shape) + 1u;
+        return true;
     }
 
     AOC_Y2022_CONSTEXPR auto select_shape(const Shape firstShape, Winner desiredOutcome)
     {
         switch (desiredOutcome)
         {
-            case Winner::draw:
-                return firstShape;
-            case Winner::first:
-                switch (firstShape)
-                {
-                    case Shape::rock:
-                        return Shape::scissors;
-                    case Shape::paper:
-                        return Shape::rock;
-                    case Shape::scissors:
-                        return Shape::paper;
-                    
-                    default:
-                        return Shape::invalid;
-                }
-                break;
-            case Winner::second:
-                switch (firstShape)
-                {
-                    case Shape::rock:
-                        return Shape::paper;
-                    case Shape::paper:
-                        return Shape::scissors;
-                    case Shape::scissors:
-                        return Shape::rock;
-                    default:
-                        return Shape::invalid;
-                }
-            default:
-                return Shape::invalid;
+            using enum Winner;
+                default:
+                case draw:
+                    return firstShape;
+                case first:
+                    return winTable[static_cast<std::size_t>(select_shape(firstShape, Winner::second))];
+                case second:
+                    return winTable[static_cast<std::size_t>(firstShape)];
         }
     }
 
@@ -184,13 +119,11 @@ namespace {
         std::uint32_t score = 0u;
         for(const auto &turn : strategyGuide)
         {
-            const auto ourShape = convert_input_shape(turn.second, true);
-            const auto winner = determine_winner(turn.first, ourShape);
-            const auto addToScore = calculate_score(winner, ourShape);
-            if (addToScore == 0u) {
+            const auto winner = determine_winner(turn.first, turn.second);
+            if (!update_score(score, winner, turn.second))
+            {
                 return 0u;
             }
-            score += addToScore;
         }
         return score;
     }
@@ -200,30 +133,13 @@ namespace {
         std::uint32_t score = 0u;
         for (const auto &turn : strategyGuide)
         {
-            auto winner = Winner::draw;
-            switch (turn.second)
-            {
-            case 'X':
-                winner = Winner::first;
-                break;
-            case 'Y':
-                winner = Winner::draw;
-                break;
-            case 'Z':
-                winner = Winner::second;
-                break;
-            
-            default:
-                return  0u;
-            }
-
+            const auto desiredOutcome = static_cast<Winner>(turn.second);
             const auto &theirShape = turn.first;
-            const auto ourShape = select_shape(theirShape, winner);
-            const auto addToScore = calculate_score(winner, ourShape);
-            if (addToScore == 0u) {
+            const auto ourShape = select_shape(theirShape, desiredOutcome);
+            if (!update_score(score, desiredOutcome, ourShape))
+            {
                 return 0u;
             }
-            score += addToScore;
         }
         return score;
     }
@@ -282,6 +198,16 @@ consteval bool TestDay02()
 }
 
 static_assert(TestDay02(), "");
+static_assert(Shape::rock == select_shape(Shape::rock, Winner::draw), "");
+static_assert(Shape::paper == select_shape(Shape::paper, Winner::draw), "");
+static_assert(Shape::scissors == select_shape(Shape::scissors, Winner::draw), "");
+static_assert(Shape::scissors == select_shape(Shape::rock, Winner::first), "");
+static_assert(Shape::rock == select_shape(Shape::paper, Winner::first), "");
+static_assert(Shape::paper == select_shape(Shape::scissors, Winner::first), "");
+static_assert(Shape::paper == select_shape(Shape::rock, Winner::second), "");
+static_assert(Shape::scissors == select_shape(Shape::paper, Winner::second), "");
+static_assert(Shape::rock == select_shape(Shape::scissors, Winner::second), "");
+
 } // namespace
 #endif // AOC_Y2022_CONSTEXPR_UNIT_TEST
 

@@ -14,11 +14,11 @@ namespace AOC::Y2022
 {
 
 namespace {
-    enum class Shape : std::uint8_t {
-        invalid = 0u,
-        rock = 1,
-        paper = 2,
-        scissors = 3,
+    enum class Shape : char {
+        invalid = '\0',
+        rock = 'A',
+        paper = 'B',
+        scissors = 'C',
     };
 
     enum class Winner {
@@ -39,14 +39,9 @@ namespace {
         switch(input)
         {
             case 'A':
-                return Shape::rock;
-                break;
             case 'B':
-                return Shape::paper;
-                break;
             case 'C':
-                return Shape::scissors;
-                break;
+                return static_cast<Shape>(input);
             default:
                 return Shape::invalid;
         }
@@ -56,14 +51,14 @@ namespace {
     {
         std::vector<Turn> strategy;
         auto forEachLine = [&strategy](const std::string_view &line) -> bool {
-            if (line.empty() || (line.size() < 3u))
-            {
-                return false;
-            }
-            enum InputPos {
+            enum InputPos : std::size_t {
                 they = 0u,
                 us = 2u,
             };
+            if (line.empty() || (line.size() <= InputPos::us))
+            {
+                return false;
+            }
             const auto theirs = convert_input_shape(line[InputPos::they], false);
             if ((theirs == Shape::invalid) || (convert_input_shape(line[InputPos::us], true) == Shape::invalid))
             {
@@ -128,14 +123,60 @@ namespace {
             case Winner::second:
                 score += 6u;
                 break;
-            case Winner:: draw:
+            case Winner::draw:
                 score += 3u;
                 break;
             default:
                 return 0u;
         }
-        score += static_cast<std::uint32_t>(shape);
-        return score;
+        switch (shape)
+        {
+            case Shape::rock:
+                return score + 1u;
+            case Shape::paper:
+                return score + 2u;
+            case Shape::scissors:
+                return score + 3u;
+            default:
+                return 0u;
+        }
+    }
+
+    AOC_Y2022_CONSTEXPR auto select_shape(const Shape firstShape, Winner desiredOutcome)
+    {
+        switch (desiredOutcome)
+        {
+            case Winner::draw:
+                return firstShape;
+            case Winner::first:
+                switch (firstShape)
+                {
+                    case Shape::rock:
+                        return Shape::scissors;
+                    case Shape::paper:
+                        return Shape::rock;
+                    case Shape::scissors:
+                        return Shape::paper;
+                    
+                    default:
+                        return Shape::invalid;
+                }
+                break;
+            case Winner::second:
+                switch (firstShape)
+                {
+                    case Shape::rock:
+                        return Shape::paper;
+                    case Shape::paper:
+                        return Shape::scissors;
+                    case Shape::scissors:
+                        return Shape::rock;
+                    default:
+                        return Shape::invalid;
+                }
+            default:
+                return Shape::invalid;
+        }
     }
 
     AOC_Y2022_CONSTEXPR auto part_1(const auto &strategyGuide)
@@ -176,54 +217,8 @@ namespace {
                 return  0u;
             }
 
-            auto ourShape = Shape::invalid;
             const auto &theirShape = turn.first;
-            switch (winner)
-            {
-                case Winner::draw:
-                    ourShape = theirShape;
-                    break;
-                case Winner::first:
-                    switch (theirShape)
-                    {
-                        case Shape::rock:
-                            ourShape = Shape::scissors;
-                            break;
-
-                        case Shape::paper:
-                            ourShape = Shape::rock;
-                            break;
-                        
-                        case Shape::scissors:
-                            ourShape = Shape::paper;
-                            break;
-                        
-                        default:
-                            break;
-                    }
-                    break;
-                case Winner::second:
-                    switch (theirShape)
-                    {
-                        case Shape::rock:
-                            ourShape = Shape::paper;
-                            break;
-
-                        case Shape::paper:
-                            ourShape = Shape::scissors;
-                            break;
-                        
-                        case Shape::scissors:
-                            ourShape = Shape::rock;
-                            break;
-                        
-                        default:
-                            break;
-                    }
-                    break;
-                default:
-                    return 0u;
-            }
+            const auto ourShape = select_shape(theirShape, winner);
             const auto addToScore = calculate_score(winner, ourShape);
             if (addToScore == 0u) {
                 return 0u;

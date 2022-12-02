@@ -69,11 +69,11 @@ jobs:
 
     - name: Configure CMake for Linux
       if: runner.os == 'Linux'
-      run: cmake -S ${{github.workspace}}/cpp -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
   
     - name: Configure CMake for Windows
       if: runner.os == 'Windows'
-      run: cmake -S ${{github.workspace}}/cpp -B ${{github.workspace}}/build -G "Visual Studio 17 2022" ${{ matrix.archWin }}
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -G "Visual Studio 17 2022" ${{ matrix.archWin }}
 
     - name: Build
       # Build your program with the given configuration

@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(AdventOfCode VERSION 2022.12.2)
-
 function(default_compile_options target)
     if(MSVC)
         target_compile_options(${target} PRIVATE
@@ -19,10 +17,10 @@ function(default_compile_options target)
     endif()
 endfunction()
 
-add_library(AOC_Y2022 STATIC)
-target_compile_features(AOC_Y2022 PUBLIC cxx_std_23)
+add_library(aoc_y2022_core STATIC)
+target_compile_features(aoc_y2022_core PUBLIC cxx_std_23)
 
-default_compile_options(AOC_Y2022)
+default_compile_options(aoc_y2022_core)
 
 add_subdirectory(include)
 add_subdirectory(src)

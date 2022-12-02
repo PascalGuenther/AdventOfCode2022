@@ -8,17 +8,21 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(CompileTimeRegularExpressions)
 
+target_link_libraries(aoc_y2022_core PRIVATE
+    ctre
+)
+
 set(AOC_Y2022_DAYS_LIST "01;02")
 set(AOC_Y2022_DAYS_LIST ${AOC_Y2022_DAYS_LIST} PARENT_SCOPE)
 set(AOC_Y2022_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} PARENT_SCOPE)
 
 
-target_sources(AOC_Y2022  PRIVATE
+target_sources(aoc_y2022_core  PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/puzzle_factory.cpp
 )
 
 foreach(DAY ${AOC_Y2022_DAYS_LIST})
-    target_sources(AOC_Y2022 PRIVATE
+    target_sources(aoc_y2022_core PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/day${DAY}.cpp
     )
 endforeach()

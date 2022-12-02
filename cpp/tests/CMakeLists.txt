@@ -23,7 +23,7 @@ function(AOC_Y2022_CreateTest TEST_DAY)
     )
     target_compile_features(${AOC_Y2022_TEST_TARGET_NAME} PUBLIC cxx_std_23)
 
-    get_target_property(AOC_Y2022_INCLUDES AOC_Y2022 INCLUDE_DIRECTORIES)
+    get_target_property(AOC_Y2022_INCLUDES aoc_y2022_core INCLUDE_DIRECTORIES)
     target_include_directories(${AOC_Y2022_TEST_TARGET_NAME} PRIVATE
         ${AOC_Y2022_SOURCE_DIR}
         ${AOC_Y2022_INCLUDES}

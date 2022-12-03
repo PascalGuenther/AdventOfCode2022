@@ -17,7 +17,8 @@ Features:
 ### Building the application
 Either, open the directory directly in VisualStudio,  
 or run
-- `cmake -S . -B build`
-- Build only the main program: `cmake --build build --target aoc-2022-cli`
-- or, build everything: `cmake --build build`
+- Configure CMake: `cmake -S . -B build`
+- Build the project
+   - only the main program: `cmake --build build --target aoc-2022-cli`
+   - or, build everything: `cmake --build build`
 - Run a specific day (Example: Day 01): `build/bin/aoc-2022-cli 01 input/day01.txt`

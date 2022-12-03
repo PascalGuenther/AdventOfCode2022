@@ -104,7 +104,7 @@ namespace {
             {
                 if (sharedItem & (1ull << i))
                 {
-                    prioSum += i + 1ull;
+                    prioSum += i + 1ul;
                     break;
                 }
             }

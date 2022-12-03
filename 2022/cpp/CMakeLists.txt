@@ -27,6 +27,6 @@ add_subdirectory(src)
 
 add_subdirectory(examples)
 
-if(AOC_Y2022_TESTING)
+if(AOC_TESTING)
   add_subdirectory(tests)
 endif()

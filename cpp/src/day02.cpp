@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <memory>
 #include <numeric>
-#include <ranges>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -139,6 +138,7 @@ namespace {
 
 class PuzzleDay02Impl final {
 public:
+    AOC_Y2022_CONSTEXPR PuzzleDay02Impl(std::vector<Turn> &&strategy) : strategyGuide(strategy) {}
     std::vector<Turn> strategyGuide;
 };
 

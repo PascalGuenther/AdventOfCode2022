@@ -47,13 +47,14 @@ namespace {
     {
         auto elfCalories = get_elf_list(parsedInput);
         constexpr auto numberOfTopElves = 3u;
-        std::ranges::partial_sort(elfCalories, elfCalories.begin() + numberOfTopElves, std::greater());
+        std::partial_sort(elfCalories.begin(), elfCalories.begin() + numberOfTopElves, elfCalories.end(), std::greater());
         return std::accumulate(elfCalories.begin(), elfCalories.begin() + numberOfTopElves, 0u);
     }
 }
 
 class PuzzleDay01Impl final {
 public:
+    AOC_Y2022_CONSTEXPR PuzzleDay01Impl(std::vector<Calories> &&calories) : caloriesList(calories) {}
     std::vector<Calories> caloriesList;
 };
 

@@ -67,11 +67,11 @@ namespace {
         for (const auto &rucksack : rucksacks)
         {
             const auto item = rucksack.first & rucksack.second;
-            for (auto i = 0ul; i != (8u * sizeof(item)); ++i)
+            for (auto i = 0u; i != (8u * sizeof(item)); ++i)
             {
                 if (item & (1ull << i))
                 {
-                    prioSum += i + 1ul;
+                    prioSum += i + 1u;
                     break;
                 }
             }
@@ -100,11 +100,11 @@ namespace {
             {
                 return std::monostate{};
             }
-            for (auto i = 0ul; i != (8u * sizeof(sharedItem)); ++i)
+            for (auto i = 0u; i != (8u * sizeof(sharedItem)); ++i)
             {
                 if (sharedItem & (1ull << i))
                 {
-                    prioSum += i + 1ul;
+                    prioSum += i + 1u;
                     break;
                 }
             }

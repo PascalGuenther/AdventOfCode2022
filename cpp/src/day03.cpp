@@ -88,10 +88,10 @@ namespace {
             return std::monostate{};
         }
         std::uint32_t prioSum = 0u;
-        for(auto start = 0ul; start < numRucksacks; start = start + groupSize)
+        for(auto start = 0ull; start < numRucksacks; start = start + groupSize)
         {
             Bitset sharedItem{std::numeric_limits<Bitset>::max()};
-            for (auto i = 0ul; i != groupSize; ++i)
+            for (auto i = 0ull; i != groupSize; ++i)
             {
                 const auto &rucksack = rucksacks[start + i];
                 sharedItem &= rucksack.first| rucksack.second;
@@ -104,7 +104,7 @@ namespace {
             {
                 if (sharedItem & (1ull << i))
                 {
-                    prioSum += i + 1ul;
+                    prioSum += i + 1ull;
                     break;
                 }
             }

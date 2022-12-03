@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <bit>
+#include <limits>
 #include <memory>
 #include <numeric>
 #include <ranges>
@@ -17,7 +18,7 @@ namespace AOC::Y2022
 
 namespace {
 
-    using Bitset = std::uint64_t;
+    using Bitset = std::uint64_t; // std::bitset would be nicer, however, C++23 is required for `constexpr`
     using Rucksack = std::pair<Bitset, Bitset>;
 
     AOC_Y2022_CONSTEXPR auto parse_input(std::string_view input_string_view)
@@ -90,12 +91,17 @@ namespace {
         std::uint32_t prioSum = 0u;
         for(auto start = 0ull; start < numRucksacks; start = start + groupSize)
         {
+            // Stategy:
+            // First, set the bits for all items.
             Bitset sharedItem{std::numeric_limits<Bitset>::max()};
             for (auto i = 0ull; i != groupSize; ++i)
             {
+                // Then, for each rucksack within a group, clear all items
+                // the rucksack does not contian
                 const auto &rucksack = rucksacks[start + i];
-                sharedItem &= rucksack.first| rucksack.second;
+                sharedItem &= rucksack.first | rucksack.second;
             }
+            // In the end, there should only remain one item
             if (std::popcount(sharedItem) != 1u)
             {
                 return std::monostate{};

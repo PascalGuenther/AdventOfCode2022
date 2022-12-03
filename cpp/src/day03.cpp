@@ -34,12 +34,12 @@ namespace {
                     Bitset bitset = 0u;
                     for (const auto c : input)
                     {
-                        if ((c >= 'a') && (c <= 'z'))
+                        if (std::islower(c))
                         {
-                            bitset |= 1ul << (c - 'a');
+                            bitset |= 1ull << (c - 'a');
                             continue;
                         }
-                        bitset |= 1ul << (c - 'A' + 26);
+                        bitset |= 1ull << (c - 'A' + 26);
                     }
                     return bitset;
                 };
@@ -69,7 +69,7 @@ namespace {
             const auto item = rucksack.first & rucksack.second;
             for (auto i = 0u; i != (8u * sizeof(item)); ++i)
             {
-                if (item & static_cast<Bitset>(1ul << i))
+                if (item & (1ull << i))
                 {
                     prioSum += i + 1u;
                     break;
@@ -102,9 +102,9 @@ namespace {
             }
             for (auto i = 0ul; i != (8u * sizeof(sharedItem)); ++i)
             {
-                if (sharedItem & static_cast<Bitset>(1ul << i))
+                if (sharedItem & (1ull << i))
                 {
-                    prioSum += i + 1u;
+                    prioSum += i + 1ul;
                     break;
                 }
             }

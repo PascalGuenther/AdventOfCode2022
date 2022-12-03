@@ -5,6 +5,7 @@
 #define AOC_Y2022_SUPPORTED_PUZZLES_LIST(xMacro)                   \
     xMacro(01)                                                     \
     xMacro(02)                                                     \
+    xMacro(03)                                                     \
 
 namespace AOC::Y2022
 {

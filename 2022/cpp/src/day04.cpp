@@ -25,33 +25,31 @@ namespace {
     AOC_Y2022_CONSTEXPR IPuzzle::Solution_t solve_part([[maybe_unused]] PuzzlePart part, std::string_view input_string_view)
     {
         bool parsingError = false;
-        uint32_t overlappingPairs = 0u;
+        std::uint32_t overlappingPairs = 0u;
         for_each_line(input_string_view, [&parsingError, &overlappingPairs, &part](const std::string_view &line) -> bool {
             if (line.empty())
             {
                 return false;
             }
-            using Elf = std::pair<uint32_t, uint32_t>;
-            Elf elf1{};
-            Elf elf2{};
             if (auto [m, start1, end1, start2, end2] = ctre::match<"^([0-9]+)-([0-9]+),([0-9]+)-([0-9]+)$">(line); m)
             {
-                elf1.first = parse_number<decltype(elf1.first)>(start1);
-                elf1.second = parse_number<decltype(elf1.second)>(end1);
-                elf2.first = parse_number<decltype(elf2.first)>(start2);
-                elf2.second = parse_number<decltype(elf2.second)>(end2);
-                if ((elf1.second < elf1.first) || (elf2.second < elf2.first))
+                struct Elf {
+                    std::uint32_t x;
+                    std::uint32_t y;
+                };
+                std::pair<Elf, Elf> elves{
+                    {parse_number<std::uint32_t>(start1), parse_number<std::uint32_t>(end1)},
+                    {parse_number<std::uint32_t>(start2), parse_number<std::uint32_t>(end2)},
+                };
+                if ((elves.first.y < elves.first.x) || (elves.second.y < elves.second.x))
                 {
                     parsingError = true;
                     return false;
                 }
-                if (elf2.first < elf1.first)
-                {
-                    std::swap(elf1, elf2);
-                }
                 if (part == PuzzlePart::one)
                 {
-                    const bool fullyContained = (elf1.first == elf2.first) || ((elf2.first >= elf1.first) && (elf2.second <= elf1.second));
+                    const bool fullyContained = ((elves.first.x >= elves.second.x) && (elves.first.y <= elves.second.y))
+                        || ((elves.second.x >= elves.first.x) && (elves.second.y <= elves.first.y));
                     if (fullyContained)
                     {
                         overlappingPairs++;
@@ -59,7 +57,12 @@ namespace {
                 }
                 else
                 {
-                    const bool overlapping = elf2.first <= elf1.second;
+                    // x1           y1
+                    //              x2                   y2
+                    //
+                    //                        x1           y1
+                    //   x2                   y2
+                    const bool overlapping = (elves.first.y >= elves.second.x) && (elves.first.x <= elves.second.y);
                     if (overlapping)
                     {
                         overlappingPairs++;

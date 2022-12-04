@@ -18,79 +18,60 @@ namespace AOC::Y2022
 
 namespace {
 
-    enum class PuzzlePart
-    {
-        one, two,
+    struct Elf {
+        std::uint32_t x;
+        std::uint32_t y;
     };
-    AOC_Y2022_CONSTEXPR IPuzzle::Solution_t solve_part([[maybe_unused]] PuzzlePart part, std::string_view input_string_view)
+    AOC_Y2022_CONSTEXPR IPuzzle::Solution_t solve_part(std::string_view input_string_view, auto &&predicate)
     {
-        bool parsingError = false;
-        std::uint32_t overlappingPairs = 0u;
-        for_each_line(input_string_view, [&parsingError, &overlappingPairs, &part](const std::string_view &line) -> bool {
+        std::vector<std::pair<Elf, Elf>> elves;
+        for (const auto line : LineView{input_string_view})
+        {
             if (line.empty())
             {
-                return false;
+                break;
             }
             if (auto [m, start1, end1, start2, end2] = ctre::match<"^([0-9]+)-([0-9]+),([0-9]+)-([0-9]+)$">(line); m)
             {
-                struct Elf {
-                    std::uint32_t x;
-                    std::uint32_t y;
-                };
-                std::pair<Elf, Elf> elves{
-                    {parse_number<std::uint32_t>(start1), parse_number<std::uint32_t>(end1)},
-                    {parse_number<std::uint32_t>(start2), parse_number<std::uint32_t>(end2)},
-                };
-                if ((elves.first.y < elves.first.x) || (elves.second.y < elves.second.x))
+                elves.emplace_back(
+                    Elf{parse_number<std::uint32_t>(start1), parse_number<std::uint32_t>(end1)},
+                    Elf{parse_number<std::uint32_t>(start2), parse_number<std::uint32_t>(end2)}
+                );
+                if ((elves.back().first.y < elves.back().first.x) || (elves.back().second.y < elves.back().second.x))
                 {
-                    parsingError = true;
-                    return false;
+                    return std::monostate{};
                 }
-                if (part == PuzzlePart::one)
-                {
-                    const bool fullyContained = ((elves.first.x >= elves.second.x) && (elves.first.y <= elves.second.y))
-                        || ((elves.second.x >= elves.first.x) && (elves.second.y <= elves.first.y));
-                    if (fullyContained)
-                    {
-                        overlappingPairs++;
-                    }
-                }
-                else
-                {
-                    // x1           y1
-                    //              x2                   y2
-                    //
-                    //                        x1           y1
-                    //   x2                   y2
-                    const bool overlapping = (elves.first.y >= elves.second.x) && (elves.first.x <= elves.second.y);
-                    if (overlapping)
-                    {
-                        overlappingPairs++;
-                    }
-                }
-                return true;
             }
             else
             {
-                parsingError = true;
-                return false;
+                return std::monostate{};
             }
-        });
-        if (parsingError)
-        {
-            return std::monostate{};
         }
-        return overlappingPairs;
+        return std::count_if(elves.begin(), elves.end(), predicate);
     }
 
     AOC_Y2022_CONSTEXPR IPuzzle::Solution_t part_1(std::string_view input)
     {
-        return solve_part(PuzzlePart::one, input);
+        const auto predicate1 = [](const std::pair<Elf, Elf> &e) {
+           const bool fullyContained = ((e.first.x >= e.second.x) && (e.first.y <= e.second.y))
+               || ((e.second.x >= e.first.x) && (e.second.y <= e.first.y));
+           return fullyContained;
+        };
+        return solve_part(input, predicate1);
     }
 
     AOC_Y2022_CONSTEXPR IPuzzle::Solution_t part_2(std::string_view input)
     {
-        return solve_part(PuzzlePart::two, input);
+        const auto predicate2 = [](const std::pair<Elf, Elf> &e) {
+            // x1           y1
+            //              x2                   y2
+            //
+            //                        x1           y1
+            //   x2                   y2
+            const bool overlapping = (e.first.y >= e.second.x) && (e.first.x <= e.second.y);
+            return overlapping;
+        };
+        return solve_part(input, predicate2);
     }
 
 }
@@ -132,7 +113,6 @@ namespace
 {
 constexpr const char * exampleInput =
 R"ExampleInput(2-4,6-8
-2-4,6-8
 2-3,4-5
 5-7,7-9
 2-8,3-7

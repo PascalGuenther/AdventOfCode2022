@@ -27,7 +27,6 @@ class Day04Test : public ::testing::Test
     std::unique_ptr<IPuzzle> pPuzzle;
     static constexpr const char * exampleInput =
 R"ExampleInput(2-4,6-8
-2-4,6-8
 2-3,4-5
 5-7,7-9
 2-8,3-7

@@ -22,8 +22,8 @@ constexpr bool for_each_line(std::string_view input, auto &&fnLineCb, ParseLine 
 {
     while (!input.empty())
     {
-        const auto rfOrLn = input.find_first_of("\r\n");
-        const auto line = (rfOrLn == input.npos) ? input.substr(0) : input.substr(0, rfOrLn);
+        const auto crOrLn = input.find_first_of("\r\n");
+        const auto line = (crOrLn == input.npos) ? input.substr(0) : input.substr(0, crOrLn);
         if ((mode == ParseLine::break_if_empty) && line.empty())
         {
             return false;
@@ -41,6 +41,65 @@ constexpr bool for_each_line(std::string_view input, auto &&fnLineCb, ParseLine 
     }
     return true;
 }
+
+template <typename T>
+class LineView
+{
+  public:
+    class Iterator
+    {
+      public:
+        using S = typename T::size_type;
+      public:
+        constexpr Iterator(const T *view = nullptr, S pos = T::npos) : view(view), pos(pos) {}
+
+        constexpr Iterator &operator++()
+        {
+            if (view->size() <= pos)
+            {
+                pos = T::npos;
+                return *this;
+            }
+            const auto ln = view->find('\n', pos);
+            const auto behindLn = ln + 1u;
+            pos = ((ln == T::npos) || (behindLn >= view->size())) ? T::npos : behindLn;
+            return *this;
+        }
+        constexpr T operator*() const
+        {
+            if ((pos >= view->size()) || (pos == T::npos))
+            {
+                return std::string_view{};
+            }
+            const auto crOrLn = view->find_first_of("\r\n", pos);
+            const auto line = (crOrLn == view->npos) ? view->substr(pos) : view->substr(pos, crOrLn - pos);
+            return line;
+        }
+
+        constexpr bool operator!=(const Iterator &other) const
+        {
+            return pos != other.pos;
+        };
+
+      private:
+        const T *view;
+        S pos{0u};
+    };
+  public:
+    constexpr LineView(const T view) : view(view) {}
+
+    constexpr Iterator begin() const
+    {
+        return Iterator{&view, 0u};
+    }
+
+    constexpr Iterator end() const
+    {
+        return Iterator{};
+    }
+  private:
+    T view;
+};
 
 template <typename T> constexpr T parse_number(std::string_view str, const std::uint8_t base = 10u)
 {

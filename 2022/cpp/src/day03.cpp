@@ -80,7 +80,7 @@ namespace {
         return prioSum;
     }
 
-    AOC_Y2022_CONSTEXPR IPuzzle::Solution_t part_2(const auto rucksacks)
+    AOC_Y2022_CONSTEXPR IPuzzle::Solution_t part_2(const auto &rucksacks)
     {
         static constexpr auto groupSize = 3u;
         const auto numRucksacks = rucksacks.size();

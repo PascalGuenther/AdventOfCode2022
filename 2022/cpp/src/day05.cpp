@@ -24,7 +24,7 @@ namespace {
         numbers,
         instructions,
     };
-    AOC_Y2022_CONSTEXPR IPuzzle::Solution_t solve_part(std::string_view input_string_view, bool retainOrder)
+    AOC_Y2022_CONSTEXPR IPuzzle::Solution_t solve_part(std::string_view input_string_view, bool retainOrder, const std::string_view *expectedResult = nullptr)
     {
         const auto lines = LinesView{input_string_view};
         SearchMode mode{SearchMode::crates};
@@ -113,6 +113,27 @@ namespace {
                     return std::monostate{};
             }
         }
+        if (expectedResult != nullptr)
+        {
+            auto remaining = expectedResult->size();
+            for (const auto &stack : stacks)
+            {
+                if (stack.empty())
+                {
+                    continue;
+                }
+                if (remaining == 0u)
+                {
+                    return 0;
+                }
+                if (expectedResult->at(expectedResult->size() - remaining) != stack.back())
+                {
+                    return 0;
+                }
+                --remaining;
+            }
+            return 1;
+        }
         std::string result;
         for (const auto &stack : stacks)
         {
@@ -123,7 +144,6 @@ namespace {
             result += stack.back();
         }
         return result;
-
     }
 
     AOC_Y2022_CONSTEXPR IPuzzle::Solution_t part_1(std::string_view input)
@@ -170,7 +190,7 @@ PuzzleDay05::~PuzzleDay05() = default;
     return part_2(pImpl->input);
 }
 
-#if 0 // Sorry, no constexpr today // AOC_Y2022_CONSTEXPR_UNIT_TEST
+#if AOC_Y2022_CONSTEXPR_UNIT_TEST
 namespace
 {
 constexpr const char * exampleInput =
@@ -186,13 +206,14 @@ move 1 from 1 to 2
 )ExampleInput";
 consteval bool TestDay05()
 {
-
-    if (2 != std::get<std:string>(part_1("CMZ")))
+    std::string_view expectPart1 = "CMZ";
+    if (1 != std::get<std::int64_t>(solve_part(exampleInput, false, &expectPart1)))
     {
         return false;
     }
 
-    return 4 == std::get<std::string>(part_2("MCD"));
+    std::string_view expectPart2 = "MCD";
+    return 1 == std::get<std::int64_t>(solve_part(exampleInput, true, &expectPart2));
 }
 static_assert(TestDay05(), "Wrong results for example input");
 

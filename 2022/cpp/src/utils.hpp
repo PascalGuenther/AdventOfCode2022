@@ -6,6 +6,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -43,13 +44,20 @@ constexpr bool for_each_line(std::string_view input, auto &&fnLineCb, ParseLine 
 }
 
 template <typename T>
-class LineView
+class LinesView final
 {
   public:
-    class Iterator
+    class Iterator final
     {
       public:
         using S = typename T::size_type;
+        //using iterator_type = typename T::Iterator::iterator_type;
+        // using difference_type = typename decltype(T::begin())::difference_type;
+        using difference_type = typename std::iterator_traits<typename T::iterator>::difference_type;
+        using iterator_category = typename std::iterator_traits<typename T::iterator>::iterator_category;
+        using value_type = T;
+        using pointer = T*;
+        using reference = T&;
       public:
         constexpr Iterator(const T *view = nullptr, S pos = T::npos) : view(view), pos(pos) {}
 
@@ -86,7 +94,7 @@ class LineView
         S pos{0u};
     };
   public:
-    constexpr LineView(const T view) : view(view) {}
+    constexpr LinesView(const T view) : view(view) {}
 
     constexpr Iterator begin() const
     {

@@ -25,7 +25,7 @@ namespace {
     AOC_Y2022_CONSTEXPR IPuzzle::Solution_t solve_part(std::string_view input_string_view, auto &&predicate)
     {
         std::vector<std::pair<Elf, Elf>> elves;
-        for (const auto line : LineView{input_string_view})
+        for (const auto line : LinesView{input_string_view})
         {
             if (line.empty())
             {

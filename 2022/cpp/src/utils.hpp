@@ -139,15 +139,15 @@ template <typename T> constexpr T parse_number(std::string_view str, const std::
         T digit = 0;
         if ((c >= '0') && (c <= '9'))
         {
-            digit = static_cast<T>(c - '0');
+            digit = static_cast<T>(c) - static_cast<T>('0');
         }
         else if ((base > 10) && ((c >= 'a') && (c <= 'z')))
         {
-            digit = static_cast<T>(c - 'a' + 10);
+            digit = static_cast<T>(c) - static_cast<T>('a') + static_cast<T>(10);
         }
         else if ((base > 10) && ((c >= 'A') && (c <= 'Z')))
         {
-            digit = static_cast<T>(c - 'A' + 10);
+            digit = static_cast<T>(c) - static_cast<T>('A') + static_cast<T>(10);
         }
         else
         {

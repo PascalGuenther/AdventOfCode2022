@@ -28,7 +28,6 @@ namespace {
     {
         const auto lines = LinesView{input_string_view};
         SearchMode mode{SearchMode::crates};
-        std::size_t width = 0u;
         std::vector<std::vector<char>> stacks(10u);
         for (const auto &line : lines)
         {
@@ -36,27 +35,28 @@ namespace {
             {
                 case SearchMode::crates:
                 {
-                    if (line.size() < 2u)
+                    if (line.size() < 3u)
                     {
                         return std::monostate{};
-                    }
-                    if (line.size() > width)
-                    {
-                        width = line.size();
                     }
                     if ((line[1] >= '0') && (line[1] <= '9'))
                     {
                         mode = SearchMode::numbers;
                         continue;
                     }
-                    for (size_t i = 0u; ((4u * i) + 1u) < width; ++i)
+                    for (std::size_t stackNumber = 0u; stackNumber < stacks.size(); ++stackNumber)
                     {
-                        auto c = line[(4u * i) + 1u];
+                        const auto charIndex = (4u * stackNumber) + 1u;
+                        if (charIndex >= line.size())
+                        {
+                            break;
+                        }
+                        const auto c = line[charIndex];
                         if ((c >= 'A') && (c <= 'Z'))
                         {
-                            stacks[i].push_back(c);
+                            stacks[stackNumber].push_back(c);
                         }
-                        else if (!stacks[i].empty())
+                        else if (!stacks[stackNumber].empty())
                         {
                             return std::monostate{};
                         }

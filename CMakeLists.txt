@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(AdventOfCode VERSION 2022.12.5)
+project(AdventOfCode VERSION 2022.12.06)
 
 option(AOC_TESTING "Enable testing for AdventOfCode" On)
 

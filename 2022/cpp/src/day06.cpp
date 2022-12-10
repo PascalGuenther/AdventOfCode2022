@@ -23,7 +23,7 @@ namespace {
                 {
                     return std::monostate{};
                 }
-                const auto bit = static_cast<decltype(bitset)>(1u) << static_cast<std::size_t>(c - 'a');
+                const auto bit = static_cast<decltype(bitset)>(1u) << static_cast<decltype(c)>(c - 'a');
                 const bool alreadyInWindow = (bit & bitset) != 0u;
                 if (alreadyInWindow)
                 {

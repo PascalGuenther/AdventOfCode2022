@@ -1,19 +1,11 @@
 #include "ipuzzle.hpp"
 #include "puzzle_common.hpp"
 #include "utils.hpp"
-#include "ctre.hpp"
 
-#include <algorithm>
-#include <bit>
-#include <iterator>
-#include <limits>
 #include <memory>
 #include <numeric>
-#include <ranges>
 #include <string_view>
 #include <utility>
-#include <vector>
-
 namespace AOC::Y2022
 {
 
@@ -31,11 +23,17 @@ namespace {
                 {
                     return std::monostate{};
                 }
-                bitset |= static_cast<decltype(bitset)>(1u) << static_cast<std::size_t>(c - 'a');
-            }
-            if (static_cast<std::size_t>(std::popcount(bitset)) == windowSize)
-            {
-                return static_cast<std::int64_t>(marker);
+                const auto bit = static_cast<decltype(bitset)>(1u) << static_cast<std::size_t>(c - 'a');
+                const bool alreadyInWindow = (bit & bitset) != 0u;
+                if (alreadyInWindow)
+                {
+                    break;
+                }
+                if (offset == 1u)
+                {
+                    return static_cast<std::int64_t>(marker);
+                }
+                bitset |= bit;
             }
         }
         return std::monostate{};

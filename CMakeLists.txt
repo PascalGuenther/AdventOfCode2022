@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(AdventOfCode VERSION 2022.12.08)
+project(AdventOfCode VERSION 2022.12.09)
 
 option(AOC_TESTING "Enable testing for AdventOfCode" On)
 
@@ -13,4 +13,3 @@ if(AOC_TESTING)
 endif()
 
 add_subdirectory(2022)
-

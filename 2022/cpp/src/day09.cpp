@@ -142,7 +142,8 @@ namespace
                 knots.front().move(motion.direction);
                 for (std::size_t knotIdx = 1u; knotIdx < knots.size(); ++knotIdx)
                 {
-                    knots[knotIdx].follow(knots[knotIdx - 1u]);
+                    const auto &predecessor = knots[knotIdx - 1u];
+                    knots[knotIdx].follow(predecessor);
                 }
                 visit(knots.back().position);
             }

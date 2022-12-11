@@ -36,34 +36,6 @@ namespace
                 }
                 const auto thisHeight = forest(col, row);
                 bool notVisible = false;
-                for (std::size_t otherRow = 0u; otherRow != row; ++otherRow)
-                {
-                    if (thisHeight <= forest(col, otherRow))
-                    {
-                        notVisible = true;
-                        break;
-                    }
-                }
-                if(!notVisible)
-                {
-                    ++visibleTrees;
-                    continue;
-                }
-                notVisible = false;
-                for (std::size_t otherRow = row + 1u; otherRow != height; ++otherRow)
-                {
-                    if (thisHeight <= forest(col, otherRow))
-                    {
-                        notVisible = true;
-                        break;
-                    }
-                }
-                if(!notVisible)
-                {
-                    ++visibleTrees;
-                    continue;
-                }
-                notVisible = false;
                 for (std::size_t otherCol = 0u; otherCol != col; ++otherCol)
                 {
                     if (thisHeight <= forest(otherCol, row))
@@ -81,6 +53,34 @@ namespace
                 for (std::size_t otherCol = col + 1u; otherCol != width; ++otherCol)
                 {
                     if (thisHeight <= forest(otherCol, row))
+                    {
+                        notVisible = true;
+                        break;
+                    }
+                }
+                if(!notVisible)
+                {
+                    ++visibleTrees;
+                    continue;
+                }
+                notVisible = false;
+                for (std::size_t otherRow = 0u; otherRow != row; ++otherRow)
+                {
+                    if (thisHeight <= forest(col, otherRow))
+                    {
+                        notVisible = true;
+                        break;
+                    }
+                }
+                if(!notVisible)
+                {
+                    ++visibleTrees;
+                    continue;
+                }
+                notVisible = false;
+                for (std::size_t otherRow = row + 1u; otherRow != height; ++otherRow)
+                {
+                    if (thisHeight <= forest(col, otherRow))
                     {
                         notVisible = true;
                         break;
@@ -189,9 +189,6 @@ consteval bool TestDay08()
         return false;
     }
     return (8 == std::get<std::int64_t>(part_2(parsed.forest)));
-
-
-    //return 1 == std::get<std::int64_t>((exampleInput, true, &expectPart2);
 }
 static_assert(TestDay08(), "Wrong results for example input");
 

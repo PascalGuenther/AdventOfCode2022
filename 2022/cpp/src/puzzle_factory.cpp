@@ -10,6 +10,7 @@
     xMacro(05)                                                     \
     xMacro(06)                                                     \
     xMacro(07)                                                     \
+    xMacro(08)                                                     \
 
 namespace AOC::Y2022
 {

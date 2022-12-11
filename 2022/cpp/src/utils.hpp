@@ -212,7 +212,7 @@ template <typename T> class Vector2D
         return m_vec[m_width * row + col];
     }
 
-    [[nodiscard]] AOC_Y2022_CONSTEXPR T operator()(std::size_t col, std::size_t row) const
+    [[nodiscard]] AOC_Y2022_CONSTEXPR const T &operator()(std::size_t col, std::size_t row) const
     {
         return m_vec[m_width * row + col];
     }

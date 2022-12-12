@@ -155,7 +155,7 @@ namespace
     AOC_Y2022_CONSTEXPR auto part_2(const InstructionList &input, Display &display) -> bool
     {
         bool noError = true;
-        const auto accumulateSignalStrengths = [&display, &noError](const std::int32_t cycle, const Cpu &cpu) {
+        const auto drawToDisplay = [&display, &noError](const std::int32_t cycle, const Cpu &cpu) {
             std::int32_t height{static_cast<std::int32_t>(display.rows.size())};
             std::int32_t width{static_cast<std::int32_t>(display.rows[0].size())};
             const std::int32_t pixel = (cycle - 1) % width;
@@ -172,7 +172,7 @@ namespace
                 display.rows[static_cast<std::size_t>(row)][static_cast<std::size_t>(pixel)] = '#';
             }
         };
-        if (simulate_cpu(input, accumulateSignalStrengths))
+        if (simulate_cpu(input, drawToDisplay))
         {
             return noError;
         }

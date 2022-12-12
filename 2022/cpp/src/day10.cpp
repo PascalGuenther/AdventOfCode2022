@@ -21,15 +21,20 @@ namespace
 
     struct Display
     {
-        explicit AOC_Y2022_CONSTEXPR Display()
-        {
-            for(auto &row : rows)
-            {
-                row.fill('.');
-            }
-        }
         using Row = std::array<char, 40u>;
-        std::array<Row, 6u> rows;
+        static constexpr Row emptyRow
+        {
+            '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
+        };
+        std::array<Row, 6u> rows
+        {
+            emptyRow,
+            emptyRow,
+            emptyRow,
+            emptyRow,
+            emptyRow,
+            emptyRow,
+        };
     };
 
     struct Instruction final

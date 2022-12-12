@@ -13,6 +13,10 @@ namespace AOC::Y2022
 class IPuzzle
 {
   public:
+    enum class Part
+    {
+      one, two,
+    };
     using Solution_t = std::variant<std::monostate, std::int64_t, std::string>;
 
   public:

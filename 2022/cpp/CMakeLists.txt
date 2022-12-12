@@ -13,6 +13,7 @@ function(default_compile_options target)
             -Wconversion
             -Wnarrowing
             -Werror
+            -fconstexpr-ops-limit=3355443200
         )
     endif()
 endfunction()

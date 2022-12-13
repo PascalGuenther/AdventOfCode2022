@@ -19,7 +19,6 @@ jobs:
         - os: ubuntu-22.04
           compiler: msvc
 
-        exclude:
         - os: macos-12
           compiler: msvc
           arch: x86

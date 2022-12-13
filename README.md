@@ -15,7 +15,8 @@ C++20 solutions for advent of code 2022.
 
 ### Supported compilers
 - Visual Studio 2022
-- gcc12 or higher
+- gcc 12 or higher
+- clang 14 or higher
 
 ### Building the application
 Either, open the directory directly in VisualStudio,  

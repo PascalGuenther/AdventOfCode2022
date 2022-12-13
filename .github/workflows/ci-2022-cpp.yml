@@ -11,13 +11,18 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-22.04, windows-2022]
+        os: [ubuntu-22.04, windows-2022, macos-12]
         compiler: [gnu, msvc, clang]
         arch: [x86, x64]
 
         exclude:
         - os: ubuntu-22.04
           compiler: msvc
+
+        exclude:
+        - os: macos-12
+          compiler: msvc
+          arch: x86
 
         - os: ubuntu-22.04
           arch: x86
@@ -36,7 +41,10 @@ jobs:
         - os: windows-2022
           mkdir_force: -Force
           nproc: -j4
-          generator: -G \"Visual Studio 17 2022\"
+
+        - os: macos-12
+          nproc: "-j$(sysctl -n hw.ncpu)"
+          mkdir_force: -p
 
         - compiler: gnu
           cc: gcc-12
@@ -45,10 +53,12 @@ jobs:
         - compiler: clang
            cc: clang-14
            cxx: clang++-14
+           generator: -G "Ninja"
 
         - compiler: msvc
           cc: cl
           cxx: cl
+          generator: -G \"Visual Studio 17 2022\"
         
         - arch: x86
           archWin: -A Win32
@@ -59,9 +69,7 @@ jobs:
 
     env:
         # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-        BUILD_TYPE: Release
-        CC: ${{ matrix.cc }}
-        CXX: ${{ matrix.cxx }}
+        BUILD_TYPE: Debug
 
 
     steps:
@@ -75,6 +83,10 @@ jobs:
       if: runner.os == 'Windows'
       run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -G "Visual Studio 17 2022" ${{ matrix.archWin }}
 
+    - name: Configure CMake for macOS
+      if: runner.os == 'Linux'
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build ${{ matrix.generator }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
+  
     - name: Build
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} ${{ matrix.nproc }}

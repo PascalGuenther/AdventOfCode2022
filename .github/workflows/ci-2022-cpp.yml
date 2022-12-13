@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-22.04, windows-2022]
-        compiler: [gnu, msvc]            # add clang maybe later
+        compiler: [gnu, msvc, clang]
         arch: [x86, x64]
 
         exclude:
@@ -42,9 +42,9 @@ jobs:
           cc: gcc-12
           cxx: g++-12
 
-        # - compiler: clang
-        #   cc: clang-13
-        #   cxx: clang++-13
+        - compiler: clang
+           cc: clang-14
+           cxx: clang++-14
 
         - compiler: msvc
           cc: cl

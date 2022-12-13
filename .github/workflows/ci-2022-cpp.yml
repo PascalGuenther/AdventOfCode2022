@@ -84,7 +84,7 @@ jobs:
       run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -G "Visual Studio 17 2022" ${{ matrix.archWin }}
 
     - name: Configure CMake for macOS
-      if: runner.os == 'Linux'
+      if: runner.os == 'macOS'
       run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build ${{ matrix.generator }} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=${{ matrix.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.cxx }}
   
     - name: Build

@@ -20,7 +20,7 @@ jobs:
           compiler: msvc
 
         - os: macos-12
-          compiler: [gnu, msvc]
+          compiler: msvc
 
         - os: macos-12
           arch: x86
@@ -50,10 +50,14 @@ jobs:
         - compiler: gnu
           cc: gcc-12
           cxx: g++-12
+          ccmac: gcc-12
+          cxxmac: g++-12
 
         - compiler: clang
           cc: clang-14
           cxx: clang++-14
+          ccmac: clang
+          cxxmac: clang++
 
         - compiler: msvc
           cc: cl
@@ -84,7 +88,7 @@ jobs:
 
     - name: Configure CMake for macOS
       if: runner.os == 'macOS'
-      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} 
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_C_COMPILER=${{ matrix.ccmac }} -DCMAKE_CXX_COMPILER=${{ matrix.cxxmac }}
   
     - name: Build
       # Build your program with the given configuration

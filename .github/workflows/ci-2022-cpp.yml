@@ -21,6 +21,8 @@ jobs:
 
         - os: macos-12
           compiler: [gnu, msvc]
+
+        - os: macos-12
           arch: x86
 
         - os: ubuntu-22.04

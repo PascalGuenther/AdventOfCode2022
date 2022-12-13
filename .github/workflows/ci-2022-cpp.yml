@@ -51,9 +51,9 @@ jobs:
           cxx: g++-12
 
         - compiler: clang
-           cc: clang-14
-           cxx: clang++-14
-           generator: -G "Ninja"
+          cc: clang-14
+          cxx: clang++-14
+          generator: -G "Ninja"
 
         - compiler: msvc
           cc: cl

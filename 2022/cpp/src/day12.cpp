@@ -23,13 +23,27 @@ namespace
 
     using Coordinate = std::int32_t;
     using Distance = Coordinate;
-    using Position = std::pair<Coordinate, Coordinate>;
     using Index = std::size_t;
     using Row = std::vector<char>;
     using Map = std::vector<Row>;
+    struct Position
+    {
+        Coordinate row;
+        Coordinate col;
+    };
 
     static constexpr auto invalidIndex = std::numeric_limits<Index>::max();
     static constexpr auto infiniteDistance = std::numeric_limits<Distance>::max();
+
+    [[nodiscard]] constexpr bool operator==(const Position &lhs, const Position &rhs)
+    {
+        return (lhs.row == rhs.row) && (lhs.col == rhs.col);
+    }
+
+    [[nodiscard]] AOC_Y2022_CONSTEXPR auto add(const Position &lhs, const Position &rhs)
+    {
+        return Position{lhs.row + rhs.row, lhs.col + rhs.col};
+    }
 
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto parse_map(std::string_view input) -> Map
     {
@@ -80,33 +94,15 @@ namespace
         return map;
     }
 
-    [[nodiscard]] AOC_Y2022_CONSTEXPR auto add(const auto &lhs, const auto &rhs)
-    {
-        return Position{lhs.first + rhs.first, lhs.second + rhs.second};
-    }
-
-    [[nodiscard]] AOC_Y2022_CONSTEXPR auto subtract(const auto &lhs, const auto &rhs)
-    {
-        return Position{lhs.first - rhs.first, lhs.second - rhs.second};
-    }
-
-
-
-    [[nodiscard]] AOC_Y2022_CONSTEXPR auto get_index(const Map &map, const Position &position)
-    {
-        const auto numCols = map[0].size();
-        return (static_cast<Index>(position.second) * numCols) + static_cast<Index>(position.first);
-    }
-
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto get_position(const Map &map, const Index &index)
     {
         const auto numCols = map[0].size();
-        return Position { static_cast<Coordinate>(index % numCols), static_cast<Coordinate>(index / numCols) };
+        return Position { static_cast<Coordinate>(index / numCols), static_cast<Coordinate>(index % numCols) };
     }
 
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto get_value(const Map &map, const Position &position)
     {
-        return map[static_cast<std::size_t>(position.second)][static_cast<std::size_t>(position.first)];
+        return map[static_cast<std::size_t>(position.row)][static_cast<std::size_t>(position.col)];
     }
 
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto get_value(const Map &map, const Index &index)
@@ -116,13 +112,13 @@ namespace
 
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto is_within_map(const Map &map, const Position &position)
     {
-        if ((position.first < 0) || position.second < 0)
+        if ((position.row < 0) || position.col < 0)
         {
             return false;
         }
         const auto numRows = map.size();
         const auto numCols = map[0].size();
-        return (static_cast<std::size_t>(position.first) < numCols) && (static_cast<std::size_t>(position.second) < numRows);
+        return (static_cast<std::size_t>(position.row) < numRows) && (static_cast<std::size_t>(position.col) < numCols);
     }
 
 
@@ -139,16 +135,16 @@ namespace
         const bool managableClimbHeight = adjustedNewValue <= (adjustedOldValue + 1);
         return managableClimbHeight;
     }
-    auto dijkstra(const Map &map, const Index &startIndex, const Index &destinationIndex)
+
+    auto dijkstra(const Map &map, const Index &startIndex, const Index &destinationIndex) -> Distance
     {
         const auto start = get_position(map, startIndex);
         const auto destination = get_position(map, destinationIndex);
         const Distance startDistance = 0;
         const auto rows = map.size();
         const auto cols = map[0].size();
-        const auto numberOfNodes = cols * rows;
-        std::vector<Distance> distancesFromS(numberOfNodes, infiniteDistance);
-        distancesFromS[startIndex] = startDistance;
+        std::vector<std::vector<Distance>> distancesFromStart(rows, std::vector<Distance>(cols, infiniteDistance));
+        distancesFromStart[static_cast<std::size_t>(start.row)][static_cast<std::size_t>(start.col)] = startDistance;
         struct Vertex
         {
             [[nodiscard]] constexpr bool operator<(const Vertex &other) const
@@ -157,11 +153,11 @@ namespace
                 {
                     return this->distance < other.distance;
                 }
-                if (this->position.first != other.position.first)
+                if (this->position.row != other.position.row)
                 {
-                    return this->position.first < other.position.first;
+                    return this->position.row < other.position.row;
                 }
-                return this->position.second < other.position.second;
+                return this->position.col < other.position.col;
             }
             Position position;
             Distance distance;
@@ -196,8 +192,7 @@ namespace
                 {
                     continue;
                 }
-                const auto neighborIndex = get_index(map, neighborPosition);
-                auto &neighborDistance = distancesFromS[neighborIndex];
+                auto &neighborDistance = distancesFromStart[static_cast<std::size_t>(neighborPosition.row)][static_cast<std::size_t>(neighborPosition.col)];
                 const auto distanceFromCurrent = vertex.distance + 1;
                 const bool betterPathFound = neighborDistance >= distanceFromCurrent;
                 if (betterPathFound)
@@ -208,7 +203,7 @@ namespace
                 }
             }
         } while (!prioritySearchQueue.empty());
-        return distancesFromS[destinationIndex];
+        return distancesFromStart[static_cast<std::size_t>(destination.row)][static_cast<std::size_t>(destination.col)];
     }
 
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto find_square_of_height(const Map &map, char searchForHeight, Index startIndex = 0u) -> Index

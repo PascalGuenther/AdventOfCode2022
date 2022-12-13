@@ -14,11 +14,29 @@
 namespace AOC::Y2022
 {
 
+/*!
+ * \brief Enum class representing the behavior of for_each_line when an empty line is encountered.
+ *        break_if_empty: for_each_line will return false when it encounters an empty line.
+ *        continue_if_empty: for_each_line will continue processing even if it encounters an empty line.
+ */
 enum class ParseLine
 {
     break_if_empty,
     continue_if_empty,
 };
+/*!
+ * \brief Iterates over each line in the given input string and calls the given callback function.
+ *
+ * \param input The input string to be parsed into lines.
+ * \param fnLineCb The callback function that is called for each line. The line is passed as the only argument.
+ *                 The callback function should return true if the iteration should continue, or false if it
+ *                 should be interrupted.
+ * \param mode The behavior of for_each_line when an empty line is encountered.
+ *             If not specified, the default value is ParseLine::break_if_empty.
+ *
+ * \return true if the iteration completed successfully, or false if it was interrupted by the callback function
+ *         or by encountering an empty line (depending on the value of the mode parameter).
+ */
 constexpr bool for_each_line(std::string_view input, auto &&fnLineCb, ParseLine mode = ParseLine::break_if_empty)
 {
     while (!input.empty())
@@ -43,6 +61,37 @@ constexpr bool for_each_line(std::string_view input, auto &&fnLineCb, ParseLine 
     return true;
 }
 
+/*!
+ * \brief A view class that provides an iterator over the lines in a given string.
+ *
+ * \tparam T The type of string to be iterated over (e.g. std::string, std::string_view).
+ *
+ * The iterator returned by begin() will initially point to the first line in the string.
+ * The end() iterator is reached when the end of the string is reached, or when an empty line is encountered.
+ *
+ * Example usage:
+ * \code
+ * std::string input = "hello\nworld\n\nthis\nhas\nmultiple\nlines";
+ * LinesView<std::string> view(input);
+ * for (const auto &line : view)
+ * {
+ *     std::cout << line << std::endl;
+ * }
+ * \endcode
+ *
+ * This will output the following:
+ * \verbatim
+hello
+world
+
+this
+has
+multiple
+lines
+\endverbatim
+ *
+ * Note that the empty line after "world" is not included in the iteration, because it marks the end of the view.
+ */
 template <typename T>
 class LinesView final
 {
@@ -51,8 +100,6 @@ class LinesView final
     {
       public:
         using S = typename T::size_type;
-        //using iterator_type = typename T::Iterator::iterator_type;
-        // using difference_type = typename decltype(T::begin())::difference_type;
         using difference_type = typename std::iterator_traits<typename T::iterator>::difference_type;
         using iterator_category = typename std::iterator_traits<typename T::iterator>::iterator_category;
         using value_type = T;

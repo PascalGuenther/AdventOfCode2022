@@ -39,8 +39,8 @@ jobs:
           mkdir_force: -p
         
         - os: windows-2022
-          mkdir_force: -Force
           nproc: -j4
+          mkdir_force: -Force
 
         - os: macos-12
           nproc: "-j$(sysctl -n hw.ncpu)"
@@ -49,6 +49,7 @@ jobs:
         - compiler: gnu
           cc: gcc-12
           cxx: g++-12
+          generator: -G "Ninja"
 
         - compiler: clang
           cc: clang-14
@@ -70,6 +71,8 @@ jobs:
     env:
         # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
         BUILD_TYPE: Debug
+        CC: ${{ matrix.cc }}
+        CXX: ${{ matrix.cxx }}
 
 
     steps:

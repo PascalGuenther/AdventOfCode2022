@@ -48,12 +48,12 @@ jobs:
         - compiler: gnu
           cc: gcc-12
           cxx: g++-12
-          generator: -G "Ninja"
+          generator: 
 
         - compiler: clang
           cc: clang-14
           cxx: clang++-14
-          generator: -G "Ninja"
+          generator: 
 
         - compiler: msvc
           cc: cl

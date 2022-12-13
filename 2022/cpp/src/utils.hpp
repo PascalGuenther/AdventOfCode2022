@@ -356,6 +356,11 @@ template <typename T> class Vector2D
     }
 }
 
+[[nodiscard]] AOC_Y2022_CONSTEXPR auto abs(const auto &v)
+{
+    return (v < 0) ? (-v) : v;
+}
+
 } // namespace AOC::Y2022
 
 #endif // !defined(AOC_Y2022_UTILS_HPP)

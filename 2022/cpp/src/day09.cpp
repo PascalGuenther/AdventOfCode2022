@@ -93,11 +93,8 @@ namespace
             {
                 const auto &otherPos = other.position;
                 const Position distance {otherPos.first - position.first, otherPos.second - position.second};
-                const auto constexprAbs = [](const auto v) {
-                    return (v < 0) ? (-v) : v;
-                };
-                const auto adjacent = (constexprAbs(distance.first) <= 1)
-                  && (constexprAbs(distance.second) <= 1);
+                const auto adjacent = (AOC::Y2022::abs(distance.first) <= 1)
+                  && (AOC::Y2022::abs(distance.second) <= 1);
                 if (adjacent)
                 {
                     return;

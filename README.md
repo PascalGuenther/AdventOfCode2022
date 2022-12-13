@@ -5,10 +5,11 @@
 
 C++20 solutions for advent of code 2022.
 
-Features:
+### Features
 - low memory usage
 - good performance
-- puzzle solutions are `constexpr`, thus, they can be validated using `static_assert` (on some modern compilers, at least)
+- most puzzle solutions are `constexpr`, thus, they can be validated using `static_assert` (on some modern compilers, at least)
+  - except for day 12, since it uses `std::set`which is not yet `constexpr`-enabled in C++20
 - [Compile-time regular expressions (`ctre`)](https://github.com/hanickadot/compile-time-regular-expressions) for input validation
 - unit testing (with example inputs)
 

@@ -1,0 +1,30 @@
+name: Deploy-Webapp
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: install emscripten
+      run: git clone https://github.com/emscripten-core/emsdk.git && emsdk/emsdk install latest && emsdk/emsdk activate latest && emsdk/emsdk_env.sh
+
+    - name: Configure CMake
+      run: cmake -S ${{github.workspace}} -B ${{github.workspace}}/build DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=emsdk/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake 
+    
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --target aoc-2022-web -j8
+
+    - name: Deploy webapp to Github pages
+      uses: JamesIves/github-pages-deploy-action@v4.4.1
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH: gh-pages
+        FOLDER: build/bin/aoc-2022-www
+

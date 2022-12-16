@@ -68,19 +68,18 @@ Module["onRuntimeInitialized"] = (_) => {
   });
 
   const onPuzzleInputChanged = () => {
-    // console.log("Puzzleinput changed");
-    page.viewResults.forEach((viewResult) => (viewResult.innerText = ""));
     const day = parseInt(page.daySelector.value);
     const puzzleInput = page.puzzleInput.value;
-    if (day < 1 || isNaN(day) || puzzleInput.length < 1) {
-      // console.log("input error");
-      return;
-    }
-    if (day == lastInput.day && puzzleInput == lastInput.text) {
+    if ((day === lastInput.day) && (puzzleInput == lastInput.text)) {
       return;
     }
     lastInput.day = day;
     lastInput.text = puzzleInput;
+    if (day < 1 || isNaN(day) || puzzleInput.length < 1) {
+      page.viewResults.forEach((viewResult) => (viewResult.innerText = ""));
+      // console.log("input error");
+      return;
+    }
     page.viewResults.forEach((result) => (result.innerText = "computing…"));
     solve_puzzle(day, puzzleInput, puzzleInput.length);
   };
@@ -137,7 +136,7 @@ Module["onRuntimeInitialized"] = (_) => {
 
   page.body.addEventListener("dragover", (event) => {
     console.log("dragover‚");
-    page.puzzleInput.classList.add("dragover");
+    onPuzzleInputChanged
   });
   page.body.addEventListener("dragenter", (event) => {
     console.log("dragenter");
@@ -151,9 +150,18 @@ Module["onRuntimeInitialized"] = (_) => {
   page.daySelector.addEventListener("change", (_) => onPuzzleInputChanged());
 
   const onPuzzleAreaEvent = (event) => {
-    // console.log("PuzzleAreaEvent");
     onPuzzleInputChanged();
   };
+
+  page.puzzleInput.addEventListener('keyup', _ => {
+    onPuzzleInputChanged();
+  });
+  page.puzzleInput.addEventListener('change', _ => {
+    onPuzzleInputChanged();
+  });
+  page.puzzleInput.addEventListener('paste', _ => {
+    onPuzzleInputChanged();
+  });
 
   console.log(implementedDays);
 };

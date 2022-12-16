@@ -15,7 +15,8 @@ AOC_Y2022_API
 class PuzzleFactory final
 {
   public:
-    static std::unique_ptr<IPuzzle> CreatePuzzle(std::uint8_t game, std::string_view input);
+    [[nodiscard]] static std::unique_ptr<IPuzzle> CreatePuzzle(std::uint8_t game, std::string_view input);
+    [[nodiscard]] static bool has_implementation_for_day(std::uint8_t day);
 };
 
 } // namespace AOC::Y2022

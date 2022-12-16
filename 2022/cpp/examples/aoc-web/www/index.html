@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        body {
+            background: #0f0f23;
+            font-family: "Source Code Pro", monospace;
+            color: #009900;
+            margin: 0;
+        }
+
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+        }
+
+        #everything {
+            display: flex;
+            flex-flow: column;
+            padding-left: 1em;
+            padding-right: 1em;
+            height: 100%;
+        }
+
+        h1 {
+            font-weight: normal;
+            color: #00cc00;
+            text-shadow: 0 0 2px #00cc00, 0 0 5px #00cc00;
+            text-decoration: none;
+        }
+
+        ol,
+        input,
+        select {
+            margin-top: 1em;
+            margin-bottom: 1em;
+            justify-content: center;
+            align-items: stretch;
+        }
+
+        pre,
+        textarea {
+            color: white;
+            background: #10101a;
+            border: 1px solid #333340;
+            min-width: 100%;
+            min-height: 100%;
+        }
+
+        textarea {
+            margin-top: 1em;
+            margin-bottom: 1em;
+        }
+
+        textarea.dragover {
+            border: 5px dashed white;
+        }
+
+        #inputContainer {
+            flex: 1;
+        }
+    </style>
+    <title>AoC-Web 2002</title>
+</head>
+
+<body>
+    <script src="out/aoc-2022-wasm.js"></script>
+    <div id="everything">
+        <div>
+            <h1>Advent of Code 2022</h1>
+            <select name="day" id="selectDay">
+                <option value="" disabled selected>Select a day</option>
+            </select>
+            <ol>
+                <li>
+                    <pre id="viewResultPart1">&nbsp;</pre>
+                </li>
+                <li>
+                    <pre id="viewResultPart2">&nbsp;</pre>
+                </li>
+            </ol>
+        </div>
+        <div id="inputContainer">
+            <textarea id="puzzleInput"
+                placeholder="Paste your puzzle input or drag&amp;drop a file here&hellip;"></textarea>
+        </div>
+        <input type="file" id="filePicker" accept=".txt" />
+    </div>
+
+    <script src="out/aoc.js"></script>
+</body>
+
+</html>

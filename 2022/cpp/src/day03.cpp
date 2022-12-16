@@ -82,19 +82,19 @@ namespace {
 
     AOC_Y2022_CONSTEXPR IPuzzle::Solution_t part_2(const auto &rucksacks)
     {
-        static constexpr auto groupSize = 3u;
+        static constexpr std::size_t groupSize = 3u;
         const auto numRucksacks = rucksacks.size();
         if (numRucksacks % groupSize != 0u)
         {
             return std::monostate{};
         }
         std::uint32_t prioSum = 0u;
-        for(auto start = 0ull; start < numRucksacks; start = start + groupSize)
+        for(std::size_t start = 0u; start < numRucksacks; start = start + groupSize)
         {
             // Stategy:
             // First, set the bits for all items.
             Bitset sharedItem{std::numeric_limits<Bitset>::max()};
-            for (auto i = 0ull; i != groupSize; ++i)
+            for (std::size_t i = 0u; i != groupSize; ++i)
             {
                 // Then, for each rucksack within a group, clear all items
                 // the rucksack does not contian

@@ -25,7 +25,7 @@ int main(const int argc, const char *const argv[])
             return 0;
         }
         const auto dayTmp = std::strtol(argv[1u], nullptr, 0);
-        if ((dayTmp < 1u) || (dayTmp > 25u))
+        if ((dayTmp < 1l) || (dayTmp > 25l))
         {
             std::cerr << "error: please select a day from 1 and 24\n";
             return 0;

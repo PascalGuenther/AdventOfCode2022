@@ -119,6 +119,7 @@ namespace
             Position position{0, 0};
         };
         std::array<Knot, RopeLen> knots{};
+        knots.fill(Knot{});
         std::vector<Position> visitedPositions{};
         const auto visit = [&visitedPositions](const Position &position) -> void {
             visitedPositions.push_back(position);

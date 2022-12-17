@@ -70,7 +70,7 @@
 </head>
 
 <body>
-    <script src="out/aoc-2022-wasm.js"></script>
+    <script src="out/aoc-2022-wasm.js?rev=@AOC_GIT_REVISION@"></script>
     <div id="everything">
         <div>
             <h1>Advent of Code 2022</h1>
@@ -93,7 +93,7 @@
         <input type="file" id="filePicker" accept=".txt" />
     </div>
 
-    <script src="out/aoc.js"></script>
+    <script src="out/aoc.js?rev=@AOC_GIT_REVISION@"></script>
 </body>
 
 </html>

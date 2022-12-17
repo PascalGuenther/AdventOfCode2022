@@ -121,15 +121,7 @@ namespace
         std::array<Knot, RopeLen> knots{};
         std::vector<Position> visitedPositions{};
         const auto visit = [&visitedPositions](const Position &position) -> void {
-            const auto alreadyVisited = visitedPositions.end() != std::find(visitedPositions.begin(), visitedPositions.end(), position);
-            if (!alreadyVisited)
-            {
-                // we have to construct a new position isntead
-                // of  `visitedPositions.push_back(positition)` , otherwise,
-                // GCC 12.2.0 will complain about accessing uninitialized members
-                visitedPositions.emplace_back(position.first, position.second);
-            }
-            return;
+            visitedPositions.push_back(position);
         };
         visit(knots.back().position);
         for (const auto &motion : input)
@@ -145,7 +137,9 @@ namespace
                 visit(knots.back().position);
             }
         }
-        return static_cast<std::int64_t>(visitedPositions.size());
+        std::sort(visitedPositions.begin(), visitedPositions.end());
+        const auto last = std::unique(visitedPositions.begin(), visitedPositions.end());
+        return static_cast<std::int64_t>(std::distance(visitedPositions.begin(), last));
     }
 
 

@@ -26,14 +26,20 @@ namespace
     using Index = std::size_t;
     using Row = std::vector<char>;
     using Map = std::vector<Row>;
+    static constexpr auto invalidIndex = std::numeric_limits<Index>::max();
+    static constexpr auto infiniteDistance = std::numeric_limits<Distance>::max();
     struct Position
     {
         Coordinate row;
         Coordinate col;
     };
+    struct Input
+    {
+        Index indexS{invalidIndex};
+        Index indexE{invalidIndex};
+        Map map{};
+    };
 
-    static constexpr auto invalidIndex = std::numeric_limits<Index>::max();
-    static constexpr auto infiniteDistance = std::numeric_limits<Distance>::max();
 
     [[nodiscard]] constexpr bool operator==(const Position &lhs, const Position &rhs)
     {
@@ -45,53 +51,56 @@ namespace
         return Position{lhs.row + rhs.row, lhs.col + rhs.col};
     }
 
-    [[nodiscard]] AOC_Y2022_CONSTEXPR auto parse_map(std::string_view input) -> Map
+    [[nodiscard]] AOC_Y2022_CONSTEXPR auto parse_map(std::string_view input) -> Input
     {
-        Map map;
-        map.reserve(32);
-        bool foundS = false;
-        bool foundE = false;
+        Input parsed;
+        auto &map = parsed.map;
+        map.reserve(2048);
+        Index currentIndex = 0u;
         for (const auto &line : LinesView{input})
         {
             if ((line.empty()) || ((map.size() > 1u) && (map[0].size() != line.size())))
             {
-                return Map{};
+                return Input{};
             }
             auto &row = map.emplace_back();
             if (map.size() > 1u)
             {
                 row.reserve(map[0].size());
             }
-            for (const char &c :line)
+            for (char c : line)
             {
                 if (c == 'S')
                 {
-                    if (foundS)
+                    if (parsed.indexS != invalidIndex)
                     {
-                        return Map{};
+                        return Input{};
                     }
-                    foundS = true;
+                    c = 'a';
+                    parsed.indexS = currentIndex;
                 }
                 else if (c == 'E')
                 {
-                    if (foundE)
+                    if (parsed.indexE != invalidIndex)
                     {
-                        return Map{};
+                        return Input{};
                     }
-                    foundE = true;
+                    c = 'z';
+                    parsed.indexE = currentIndex;
                 }
                 else if ((c < 'a') || (c > 'z'))
                 {
-                    return Map{};
+                    return Input{};
                 }
                 row.push_back(c);
+                currentIndex++;
             }
         }
-        if (!foundS || !foundE || (map.size() > std::numeric_limits<Coordinate>::max()) || (map[0].size() > std::numeric_limits<Coordinate>::max()))
+        if ((parsed.indexS == invalidIndex) || (parsed.indexE == invalidIndex) || (map.size() > std::numeric_limits<Coordinate>::max()) || (map[0].size() > std::numeric_limits<Coordinate>::max()))
         {
-            return Map{};
+            return Input{};
         }
-        return map;
+        return parsed;
     }
 
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto get_position(const Map &map, const Index &index)
@@ -130,9 +139,7 @@ namespace
         }
         const auto oldValue = get_value(map, fromPosition);
         const auto newValue = get_value(map, toPosition);
-        const auto adjustedOldValue = (oldValue == 'S') ? 'a' : oldValue;
-        const auto adjustedNewValue = (newValue == 'E') ? 'z' : newValue;
-        const bool managableClimbHeight = adjustedNewValue <= (adjustedOldValue + 1);
+        const bool managableClimbHeight = newValue <= (oldValue + 1);
         return managableClimbHeight;
     }
 
@@ -221,29 +228,30 @@ namespace
         return invalidIndex;
     }
 
-    [[nodiscard]] auto part_1(const auto &map) -> IPuzzle::Solution_t
+    [[nodiscard]] auto part_1(const Input &input) -> IPuzzle::Solution_t
     {
-        const auto startIndex = find_square_of_height(map, 'S');
-        const auto destinationIndex = find_square_of_height(map, 'E');
-        if ((startIndex == invalidIndex) || (destinationIndex == invalidIndex))
+        if ((input.indexS == invalidIndex) || (input.indexE == invalidIndex))
         {
             return std::monostate{};
         }
-        return dijkstra(map, startIndex, destinationIndex);
+        const auto shortestDistance = dijkstra(input.map, input.indexS, input.indexE);
+        if (shortestDistance == infiniteDistance)
+        {
+            return std::monostate{};
+        }
+        return shortestDistance;
     }
 
-    [[nodiscard]] auto part_2(const auto &map) -> IPuzzle::Solution_t
+    [[nodiscard]] auto part_2(const Input &input) -> IPuzzle::Solution_t
     {
-        const auto destinationIndex = find_square_of_height(map, 'E');
-        auto shortestDistance = infiniteDistance;
-        if (destinationIndex == invalidIndex)
+        if ((input.indexS == invalidIndex) || (input.indexE == invalidIndex))
         {
             return std::monostate{};
         }
-        for (auto startIndex = find_square_of_height(map, 'a'); startIndex != invalidIndex; startIndex = find_square_of_height(map, 'a', startIndex + 1u))
+        auto shortestDistance = infiniteDistance;
+        for (auto startIndex = find_square_of_height(input.map, 'a'); startIndex != invalidIndex; startIndex = find_square_of_height(input.map, 'a', startIndex + 1u))
         {
-            
-            const auto distance = std::min(shortestDistance, dijkstra(map, startIndex, destinationIndex));
+            const auto distance = std::min(shortestDistance, dijkstra(input.map, startIndex, input.indexE));
             shortestDistance = std::min(distance, shortestDistance);
         }
         if (shortestDistance == infiniteDistance)
@@ -257,8 +265,8 @@ namespace
 
 class PuzzleDay12Impl final {
   public:
-    AOC_Y2022_CONSTEXPR PuzzleDay12Impl(std::string_view input) : map(parse_map(input)) {}
-    Map map;
+    AOC_Y2022_CONSTEXPR PuzzleDay12Impl(std::string_view input) : parsed(parse_map(input)) {}
+    Input parsed;
 };
 
 AOC_Y2022_PUZZLE_CLASS_DECLARATION(12)
@@ -271,12 +279,12 @@ PuzzleDay12::~PuzzleDay12() = default;
 
 [[nodiscard]] IPuzzle::Solution_t PuzzleDay12::Part1()
 {
-    return part_1(pImpl->map);
+    return part_1(pImpl->parsed);
 }
 
 [[nodiscard]] IPuzzle::Solution_t PuzzleDay12::Part2()
 {
-    return part_2(pImpl->map);
+    return part_2(pImpl->parsed);
 }
 
 } // namespace AOC::Y2022

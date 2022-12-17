@@ -26,7 +26,6 @@ const aocWasmCallbacks = {
         }
         let view = page.viewResults[part - 1];
         view.innerText = solution || "failed";
-        console.log("dogjkabbaabcdag");
     },
 };
 Module["onRuntimeInitialized"] = (_) => {
@@ -63,7 +62,9 @@ Module["onRuntimeInitialized"] = (_) => {
             return;
         }
         page.viewResults.forEach((result) => (result.innerText = "computing…"));
+        console.time(`solve day ${day}`);
         solve_puzzle(day, puzzleInput, puzzleInput.length);
+        console.timeEnd(`solve day ${day}`);
     };
     const loadPuzzleInputFile = (file) => {
         console.log(file.name);

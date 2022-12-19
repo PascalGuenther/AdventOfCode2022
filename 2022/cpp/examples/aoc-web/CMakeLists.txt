@@ -31,7 +31,7 @@ add_custom_target(aoc-2022-web
 
 # write git commit hash into HTTP reqeust to prevent browsers from using cached version of our javascript
 execute_process(
-    COMMAND git rev-parse --short HEAD
+    COMMAND git -C ${CMAKE_CURRENT_SOURCE_DIR} rev-parse --short HEAD
     OUTPUT_VARIABLE AOC_GIT_REVISION
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )

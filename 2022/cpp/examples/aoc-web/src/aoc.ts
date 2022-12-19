@@ -7,12 +7,14 @@ const page = {
   daySelector: document.getElementById("selectDay") as HTMLSelectElement,
   puzzleInput: document.getElementById("puzzleInput") as HTMLTextAreaElement,
   viewResults: [
-    document.getElementById("viewResultPart1") as HTMLPreElement,
-    document.getElementById("viewResultPart2") as HTMLPreElement,
+    document.getElementById("viewResultPart1") as HTMLParagraphElement,
+    document.getElementById("viewResultPart2") as HTMLParagraphElement,
   ],
+  timingsOutputs: document.getElementById("timingsOutput") as HTMLParagraphElement
 };
 
 let lastInput = { day: 0, text: "" };
+let endTimes: [number, number] = [performance.now(), performance.now()];
 
 const aocWasmCallbacks: WasmCallbacks = {
   reiceivePuzzleSolution: (
@@ -27,13 +29,15 @@ const aocWasmCallbacks: WasmCallbacks = {
     //   solution,
     //   "viewResultPart" + part.toString(),
     // ]);
+    const index = part - 1;
     if (day < 1 || day > 25 || part < 1 || part > page.viewResults.length) {
       if (part > 0 && part <= page.viewResults.length) {
-        page.viewResults[part - 1].innerText = "failed";
+        page.viewResults[index].innerText = "failed";
       }
       return;
     }
-    let view = page.viewResults[part - 1];
+    endTimes[index] = performance.now();
+    let view = page.viewResults[index];
     view.innerText = solution || "failed";
   },
 };
@@ -53,7 +57,6 @@ Module["onRuntimeInitialized"] = (_) => {
   );
 
   let implementedDays: number[] = [];
-  console.log("fully loaded");
   for (let day = 1; day < 26; day++) {
     if (has_implementation_for_day(day) === 1) {
       implementedDays.push(day);
@@ -80,19 +83,18 @@ Module["onRuntimeInitialized"] = (_) => {
       return;
     }
     page.viewResults.forEach((result) => (result.innerText = "computing…"));
-    console.time(`solve day ${day}`);
+    const startTime = performance.now();
     solve_puzzle(day, puzzleInput, puzzleInput.length);
-    console.timeEnd(`solve day ${day}`);
+    const endTime = performance.now();
+    const decimalPlaces = 5;
+    page.timingsOutputs.innerHTML = `Part&nbsp;1: ${(endTimes[0] - startTime).toFixed(decimalPlaces)}&nbsp;ms | Part&nbsp;2: ${(endTimes[1] - endTimes[0]).toFixed(decimalPlaces)}&nbsp;ms | Total ${(endTime - startTime).toFixed(decimalPlaces)}&nbsp;ms`;
   };
 
   const loadPuzzleInputFile = (file: File) => {
-    console.log(file.name);
     if (!file.name.endsWith(".txt")) {
       return;
     }
     const numStrFromFileName = file.name.match(/\d+/);
-    console.log(numStrFromFileName);
-    console.log(file.name);
     if (numStrFromFileName?.length > 0) {
       const numFromFileName = parseInt(numStrFromFileName[0]);
       if (
@@ -136,8 +138,12 @@ Module["onRuntimeInitialized"] = (_) => {
   });
 
   page.body.addEventListener("dragover", (event) => {
-    console.log("dragover‚");
-    onPuzzleInputChanged
+    console.log("dragover");
+    page.puzzleInput.classList.add("dragover");
+  });
+  page.body.addEventListener("drageave", (event) => {
+    console.log("drageave");
+    page.puzzleInput.classList.add("dragover");
   });
   page.body.addEventListener("dragenter", (event) => {
     console.log("dragenter");
@@ -154,15 +160,14 @@ Module["onRuntimeInitialized"] = (_) => {
     onPuzzleInputChanged();
   };
 
-  page.puzzleInput.addEventListener('keyup', _ => {
+  page.puzzleInput.addEventListener("keyup", (_) => {
     onPuzzleInputChanged();
   });
-  page.puzzleInput.addEventListener('change', _ => {
+  page.puzzleInput.addEventListener("change", (_) => {
     onPuzzleInputChanged();
   });
-  page.puzzleInput.addEventListener('paste', _ => {
+  page.puzzleInput.addEventListener("paste", (_) => {
     onPuzzleInputChanged();
   });
 
-  console.log(implementedDays);
 };

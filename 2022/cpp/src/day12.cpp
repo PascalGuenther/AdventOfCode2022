@@ -28,23 +28,22 @@ namespace
     using Map = std::vector<Row>;
     static constexpr auto invalidIndex = std::numeric_limits<Index>::max();
     static constexpr auto infiniteDistance = std::numeric_limits<Distance>::max();
-    struct Position
+    struct Position final
     {
         Coordinate row;
         Coordinate col;
     };
-    struct Input
+    struct Input final
     {
         Index indexS{invalidIndex};
         Index indexE{invalidIndex};
         Map map{};
     };
-
-
-    [[nodiscard]] constexpr bool operator==(const Position &lhs, const Position &rhs)
+    struct DistanceMap final
     {
-        return (lhs.row == rhs.row) && (lhs.col == rhs.col);
-    }
+        std::vector<std::vector<Distance>> distancesFromE{};
+        Distance distanceFromEtoS{infiniteDistance};
+    };
 
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto add(const Position &lhs, const Position &rhs)
     {
@@ -137,21 +136,30 @@ namespace
         {
             return false;
         }
-        const auto oldValue = get_value(map, fromPosition);
-        const auto newValue = get_value(map, toPosition);
+        const auto oldValue = get_value(map, toPosition);
+        const auto newValue = get_value(map, fromPosition);
         const bool managableClimbHeight = newValue <= (oldValue + 1);
         return managableClimbHeight;
     }
 
-    auto dijkstra(const Map &map, const Index &startIndex, const Index &destinationIndex) -> Distance
+    auto dijkstra(const Input &input) -> DistanceMap
     {
-        const auto start = get_position(map, startIndex);
+        const auto &map = input.map;
+        const auto &destinationIndex = input.indexE;
+        const auto &startIndex = input.indexS;
+        if ((map.size() < 1u) || (destinationIndex == invalidIndex))
+        {
+            return {};
+        }
         const auto destination = get_position(map, destinationIndex);
-        const Distance startDistance = 0;
+        const auto start = (startIndex != invalidIndex)
+            ? get_position(map, startIndex)
+            : Position{.row = 0, .col = 0};
+        constexpr Distance initialDistance = 0;
         const auto rows = map.size();
         const auto cols = map[0].size();
-        std::vector<std::vector<Distance>> distancesFromStart(rows, std::vector<Distance>(cols, infiniteDistance));
-        distancesFromStart[static_cast<std::size_t>(start.row)][static_cast<std::size_t>(start.col)] = startDistance;
+        std::vector<std::vector<Distance>> distancesFromDestination(rows, std::vector<Distance>(cols, infiniteDistance));
+        distancesFromDestination[static_cast<std::size_t>(destination.row)][static_cast<std::size_t>(destination.col)] = initialDistance;
         struct Vertex
         {
             [[nodiscard]] constexpr bool operator<(const Vertex &other) const
@@ -172,19 +180,14 @@ namespace
         std::set<Vertex> prioritySearchQueue
         {
             {
-                .position = start,
-                .distance = startDistance,
+                .position = destination,
+                .distance = initialDistance,
             },
         };
         do
         {
             auto vertexHandle = prioritySearchQueue.extract(prioritySearchQueue.begin());
             const auto &vertex = vertexHandle.value();
-            const auto shortestPathFound = vertex.position == destination;
-            if (shortestPathFound)
-            {
-                return vertex.distance;
-            }
             static constexpr std::array<Position, 4u> directions
             {
                 Position{ 0,  1},
@@ -199,7 +202,7 @@ namespace
                 {
                     continue;
                 }
-                auto &neighborDistance = distancesFromStart[static_cast<std::size_t>(neighborPosition.row)][static_cast<std::size_t>(neighborPosition.col)];
+                auto &neighborDistance = distancesFromDestination[static_cast<std::size_t>(neighborPosition.row)][static_cast<std::size_t>(neighborPosition.col)];
                 const auto distanceFromCurrent = vertex.distance + 1;
                 const bool betterPathFound = neighborDistance >= distanceFromCurrent;
                 if (betterPathFound)
@@ -210,7 +213,11 @@ namespace
                 }
             }
         } while (!prioritySearchQueue.empty());
-        return distancesFromStart[static_cast<std::size_t>(destination.row)][static_cast<std::size_t>(destination.col)];
+        
+        const auto distanceFromEtoS = (startIndex == invalidIndex)
+            ? infiniteDistance
+            : distancesFromDestination[static_cast<std::size_t>(start.row)][static_cast<std::size_t>(start.col)];
+        return { .distancesFromE = distancesFromDestination, .distanceFromEtoS = distanceFromEtoS };
     }
 
     [[nodiscard]] AOC_Y2022_CONSTEXPR auto find_square_of_height(const Map &map, char searchForHeight, Index startIndex = 0u) -> Index
@@ -228,30 +235,28 @@ namespace
         return invalidIndex;
     }
 
-    [[nodiscard]] auto part_1(const Input &input) -> IPuzzle::Solution_t
+    [[nodiscard]] auto part_1(const DistanceMap &distances) -> IPuzzle::Solution_t
     {
-        if ((input.indexS == invalidIndex) || (input.indexE == invalidIndex))
+        if (distances.distanceFromEtoS == infiniteDistance)
         {
             return std::monostate{};
         }
-        const auto shortestDistance = dijkstra(input.map, input.indexS, input.indexE);
-        if (shortestDistance == infiniteDistance)
-        {
-            return std::monostate{};
-        }
-        return shortestDistance;
+        return distances.distanceFromEtoS;
     }
 
-    [[nodiscard]] auto part_2(const Input &input) -> IPuzzle::Solution_t
+    [[nodiscard]] auto part_2(const DistanceMap &distances, const Input &parsed) -> IPuzzle::Solution_t
     {
-        if ((input.indexS == invalidIndex) || (input.indexE == invalidIndex))
+        const auto &map = parsed.map;
+        const auto &distancesFromE = distances.distancesFromE;
+        if ((parsed.indexS == invalidIndex) || (parsed.indexE == invalidIndex) || (distancesFromE.size() != map.size()))
         {
             return std::monostate{};
         }
         auto shortestDistance = infiniteDistance;
-        for (auto startIndex = find_square_of_height(input.map, 'a'); startIndex != invalidIndex; startIndex = find_square_of_height(input.map, 'a', startIndex + 1u))
+        for (auto startIndex = find_square_of_height(map, 'a'); startIndex != invalidIndex; startIndex = find_square_of_height(map, 'a', startIndex + 1u))
         {
-            const auto distance = std::min(shortestDistance, dijkstra(input.map, startIndex, input.indexE));
+            const auto startPositionCandidate = get_position(map, startIndex);
+            const auto distance = distancesFromE[static_cast<std::size_t>(startPositionCandidate.row)][static_cast<std::size_t>(startPositionCandidate.col)];
             shortestDistance = std::min(distance, shortestDistance);
         }
         if (shortestDistance == infiniteDistance)
@@ -265,8 +270,15 @@ namespace
 
 class PuzzleDay12Impl final {
   public:
-    AOC_Y2022_CONSTEXPR PuzzleDay12Impl(std::string_view input) : parsed(parse_map(input)) {}
+    AOC_Y2022_CONSTEXPR PuzzleDay12Impl(std::string_view input)
+      : parsed(parse_map(input))
+      , distancesToE(dijkstra(this->parsed))
+    {
+    }
+    //  the order the class members appear in is important because
+    // of cross-referencing during construction
     Input parsed;
+    DistanceMap distancesToE;
 };
 
 AOC_Y2022_PUZZLE_CLASS_DECLARATION(12)
@@ -279,12 +291,12 @@ PuzzleDay12::~PuzzleDay12() = default;
 
 [[nodiscard]] IPuzzle::Solution_t PuzzleDay12::Part1()
 {
-    return part_1(pImpl->parsed);
+    return part_1(pImpl->distancesToE);
 }
 
 [[nodiscard]] IPuzzle::Solution_t PuzzleDay12::Part2()
 {
-    return part_2(pImpl->parsed);
+    return part_2(pImpl->distancesToE, pImpl->parsed);
 }
 
 } // namespace AOC::Y2022

@@ -2,8 +2,17 @@
 [Advent of Code 2022](https://adventofcode.com/2022)
 
 ## C++
-
 C++20 solutions for advent of code 2022.
+
+### Variants
+
+- [Web application](https://pascalguenther.github.io/AdventOfCode2022/)  
+  C++ code is compiled into WebAssembly, which can be executed by the browser. The static webpage is hosted on Github pages. Supports drag&drop for files. Input can be edited and result will update live. You could call it an Advent-of-Code-REPL 😎  
+  CMake target: `aoc-2020-web`. Compile with emscripten (see [GitHub action file](/Users/pascal/repos/adventOfCode2022/.github/workflows/webapp.yml) for an example)
+- Command line application  
+  A standard command line application, which expects the day and the path to the input file as parameters.  
+  CMake target: `aoc-2020-web`
+  
 
 ### Features
 - low memory usage
@@ -18,7 +27,7 @@ C++20 solutions for advent of code 2022.
 - gcc 12 or higher
 - clang 14 or higher
 
-### Building the application
+### Building the command line application
 Either, open the directory directly in VisualStudio,  
 or run
 - Configure CMake: `cmake -S . -B build`

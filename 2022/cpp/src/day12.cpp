@@ -270,7 +270,7 @@ namespace
 
 class PuzzleDay12Impl final {
   public:
-    AOC_Y2022_CONSTEXPR PuzzleDay12Impl(std::string_view input)
+    PuzzleDay12Impl(std::string_view input)
       : parsed(parse_map(input))
       , distancesToE(dijkstra(this->parsed))
     {
